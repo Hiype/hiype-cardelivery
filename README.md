@@ -10,5 +10,6 @@ Pretty simple so far, further updates coming soon.
 
 ## Setup
 1. Download or clone this repository inside your resources folder
-2. Add a line to your server.cfg file -> **start hiype-cardelivery**
-3. If your server is running, remember to either restart your server or do **/refresh** and also **/start hiype-cardelivery**
+2. Remove the "-main" part from folder name
+3. Add a line to your server.cfg file -> **start hiype-cardelivery**
+4. If your server is running, remember to either restart your server or do **/refresh** and also **/start hiype-cardelivery**
