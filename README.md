@@ -1,4 +1,4 @@
-# FiveM delivery script
+# FiveM car delivery script
 FiveM resource for servers with QbCore Framework.
 
 Start a mission for a car delivery, steal the car, drive it to the destination, profit.<br>
