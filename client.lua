@@ -19,6 +19,29 @@ local destinationLocation = nil
 local vehBlip = nil
 local destinationBlip = nil
 
+local player = nil
+local isLoggedIn = false
+
+RegisterNetEvent('QBCore:Client:OnPlayerLoaded')
+AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
+    TriggerServerEvent("qb-clothes:loadPlayerSkin")
+    isLoggedIn = true
+    player = PlayerPedId()
+end)
+
+RegisterNetEvent('QBCore:Client:OnPlayerUnload')
+AddEventHandler('QBCore:Client:OnPlayerUnload', function()
+    isLoggedIn = false
+end)
+
+AddEventHandler('onResourceStart', function(resource)
+    if resource == GetCurrentResourceName() then
+        Wait(100)
+        player = PlayerPedId()
+        isLoggedIn = true
+    end
+end)
+
 RegisterNetEvent("hiype-cardelivery:update-cooldown")
 AddEventHandler("hiype-cardelivery:update-cooldown", function(status)
     cooldown = status
@@ -143,6 +166,10 @@ function carWithAi(aiEnabled)
     end)
 end
 
+RegisterCommand("isLoggedIn-car", function()
+    print(isLoggedIn)
+end, false)
+
 RequestModel(pedModel)
 CreateThread(function()
     local notifSent = false
@@ -153,12 +180,11 @@ CreateThread(function()
 
     createPed()
 
-    local playerPed = PlayerPedId()
     while true do
-        Citizen.Wait(4)
+        Citizen.Wait(0)
 
-        local playerCoords = GetEntityCoords(playerPed)
-        if Vdist2(npcCoords, playerCoords) < 20 then
+        local playerCoords = GetEntityCoords(player)
+        if Vdist2(npcCoords, playerCoords) < 20 and isLoggedIn then
             if IsControlPressed(0, 38) then
                 if isWorking then
                     isWorking = false
@@ -170,7 +196,7 @@ CreateThread(function()
                     if not cooldown then
                         isWorking = true
                         QBCore.Functions.Notify("Car delivery job started", "success", 3000)
-                        carWithAi(false)
+                        carWithAi(aiEnabled)
                         Citizen.Wait(500)
                     else
                         TriggerServerEvent("hiype-cardelivery:request-cooldown-time")
