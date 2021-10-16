@@ -86,31 +86,33 @@ function carWithAi(aiEnabled)
         SetVehicleNeedsToBeHotwired(vehicle, false)
         SetModelAsNoLongerNeeded(model)
 
-        -- Get the ped headshot image
-        local handle = RegisterPedheadshot(npc)
-        while not IsPedheadshotReady(handle) or not IsPedheadshotValid(handle) do
-            Citizen.Wait(0)
+        if notification then
+            -- Get the ped headshot image
+            local handle = RegisterPedheadshot(npc)
+            while not IsPedheadshotReady(handle) or not IsPedheadshotValid(handle) do
+                Citizen.Wait(0)
+            end
+            local txd = GetPedheadshotTxdString(handle)
+
+            -- Add the notification text
+            BeginTextCommandThefeedPost("STRING")
+            AddTextComponentSubstringPlayerName("Go get a ~r~" .. vehicles[vehicleChoice].name .. "~w~ in ~g~" .. spawns[spawnLocation].name)
+            
+            -- Set the notification icon, title and subtitle.
+            local title = "Thug"
+            local subtitle = "Message"
+            local iconType = 0
+            local flash = false -- Flash doesn't seem to work no matter what.
+            EndTextCommandThefeedPostMessagetext(txd, txd, flash, iconType, title, subtitle)
+
+            -- Draw the notification
+            local showInBrief = true
+            local blink = false -- blink doesn't work when using icon notifications.
+            EndTextCommandThefeedPostTicker(blink, showInBrief)
+            
+            -- Cleanup after yourself!
+            UnregisterPedheadshot(handle)
         end
-        local txd = GetPedheadshotTxdString(handle)
-
-        -- Add the notification text
-        BeginTextCommandThefeedPost("STRING")
-        AddTextComponentSubstringPlayerName("Go get a ~r~" .. vehicles[vehicleChoice].name .. "~w~ in ~g~" .. spawns[spawnLocation].name)
-        
-        -- Set the notification icon, title and subtitle.
-        local title = "Thug"
-        local subtitle = "Message"
-        local iconType = 0
-        local flash = false -- Flash doesn't seem to work no matter what.
-        EndTextCommandThefeedPostMessagetext(txd, txd, flash, iconType, title, subtitle)
-
-        -- Draw the notification
-        local showInBrief = true
-        local blink = false -- blink doesn't work when using icon notifications.
-        EndTextCommandThefeedPostTicker(blink, showInBrief)
-        
-        -- Cleanup after yourself!
-        UnregisterPedheadshot(handle)
 
         if aiEnabled then
             ped = CreatePed(4, pedModel, spawnCoords.x, spawnCoords.y, spawnCoords.z, spawnHeading, true, true)
@@ -183,8 +185,8 @@ CreateThread(function()
     while true do
         Citizen.Wait(0)
 
-        local playerCoords = GetEntityCoords(player)
-        if Vdist2(npcCoords, playerCoords) < 20 and isLoggedIn then
+        local pCoords = GetEntityCoords(PlayerPedId())
+        if Vdist2(npcCoords, pCoords) < 20 and isLoggedIn then
             if IsControlPressed(0, 38) then
                 if isWorking then
                     isWorking = false
