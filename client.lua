@@ -24,6 +24,7 @@ AddEventHandler('QBCore:Client:OnPlayerUnload', function()
     isLoggedIn = false
 end)
 
+-- Allows the ability to reload this resource live
 AddEventHandler('onResourceStart', function(resource)
     if resource == GetCurrentResourceName() then
         Wait(100)
@@ -44,7 +45,7 @@ SetBlipSprite(blip, 524)
 SetBlipScale(blip, 0.8)
 SetBlipAsShortRange(blip, true)
 BeginTextCommandSetBlipName("STRING")
-AddTextComponentString("Car delivery job")
+AddTextComponentString("Car delivery")
 EndTextCommandSetBlipName(blip)
 
 function carWithAi(aiEnabled)
@@ -124,10 +125,6 @@ function carWithAi(aiEnabled)
         SetBlipRouteColour(destinationBlip, 5)
 
         local playerCoords = GetEntityCoords(PlayerPedId())
-        --print(playerCoords)
-        --print(GetEntitySpeed(vehicle))
-        --print(destinations[destinationLocation].x .. destinations[destinationLocation].y .. destinations[destinationLocation].z)
-        --print(Vdist2(destinations[destinationLocation].x, destinations[destinationLocation].y, destinations[destinationLocation].z, playerCoords.x, playerCoords.y, playerCoords.z))
         while (Vdist2(destinations[destinationLocation].x, destinations[destinationLocation].y, destinations[destinationLocation].z, playerCoords.x, playerCoords.y, playerCoords.z) > 5 or GetEntitySpeed(vehicle) > 0) and IsVehicleDriveable(vehicle, true) do
             playerCoords = GetEntityCoords(PlayerPedId())
             Citizen.Wait(500)
