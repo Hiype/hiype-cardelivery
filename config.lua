@@ -1,8 +1,22 @@
--- An npc drives with the car to your job start location (not sure if works for long range, its more for fun)
+-- An npc drives with the car to your destCoords (not sure if works for long range)
 aiEnabled = false
+destCoords = vector3(-79.69, -1409.46, 29.32) -- Coords where the npc needs to drive to
 
 -- Sends you a message of where and what car to get (Problems showing under status UI)
-notification = false
+notification = true
+
+-- Npc spawn location
+npcHeading = 205.9
+npcCoords = vector3(-79.25, -1392.6, 29.32)
+
+-- The size of the circle where player enters to start the job
+startSize = 20
+
+-- Cooldown in seconds that forbids players to take this job all the time
+cooldown = 120
+
+-- Change the string to have a different npc model
+pedModel = GetHashKey("g_m_y_lost_01")
 
 -- You should replace these custom vehicles if your server does not have them
 vehicles = {

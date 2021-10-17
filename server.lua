@@ -5,7 +5,7 @@ AddEventHandler("hiype_cardelivery:start_cooldown", function()
     CreateThread(function()
 
         --Waits 120 seconds / 2 minutes
-        for i=120, 0, -1 do
+        for i=cooldown, 0, -1 do
             Citizen.Wait(1000)
             secondsLeft = i
         end

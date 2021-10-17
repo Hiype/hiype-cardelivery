@@ -1,23 +1,13 @@
-local npcHeading = 205.9
-local npcCoords = vector3(-79.25, -1392.6, 29.32)
-
-local spawnHeading = 212.84
-local spawnCoords = vector3(-91.94, -1406.96, 29.32)
-
-local destCoords = vector3(-79.69, -1409.46, 29.32)
-
-local pedModel = GetHashKey("g_m_y_lost_01")
-
 local isWorking = false
 local vehicle = nil
 local vehicleChoice = nil
 local ped = nil
-local npc = nil
 local cooldown = nil
 local spawnLocation = nil
 local destinationLocation = nil
 local vehBlip = nil
 local destinationBlip = nil
+local npc = nil
 
 local player = nil
 local isLoggedIn = false
@@ -57,15 +47,6 @@ BeginTextCommandSetBlipName("STRING")
 AddTextComponentString("Car delivery job")
 EndTextCommandSetBlipName(blip)
 
-function createPed()
-    npc = CreatePed(4, pedModel, npcCoords.x, npcCoords.y, npcCoords.z - 1, npcHeading
-, true, true)
-    FreezeEntityPosition(npc, true)
-    SetEntityInvincible(npc, true)
-    SetBlockingOfNonTemporaryEvents(npc, true)
-    TaskStartScenarioInPlace(npc, "WORLD_HUMAN_DRUG_DEALER", 0, true)
-end
-
 function carWithAi(aiEnabled)
     CreateThread(function()
         TriggerServerEvent("hiype_cardelivery:start_cooldown")
@@ -81,43 +62,47 @@ function carWithAi(aiEnabled)
         vehicle = CreateVehicle(model, spawns[spawnLocation].x, spawns[spawnLocation].y, spawns[spawnLocation].z, spawns[spawnLocation].heading, true, true)
         local netid = NetworkGetNetworkIdFromEntity(vehicle)
 
-        SetVehicleHasBeenOwnedByPlayer(vehicle,  true)
+        SetVehicleHasBeenOwnedByPlayer(vehicle, true)
         SetNetworkIdCanMigrate(netid, true)
-        SetVehicleNeedsToBeHotwired(vehicle, false)
+        SetVehicleNeedsToBeHotwired(vehicle, true)
         SetModelAsNoLongerNeeded(model)
 
         if notification then
-            -- Get the ped headshot image
-            local handle = RegisterPedheadshot(npc)
-            while not IsPedheadshotReady(handle) or not IsPedheadshotValid(handle) do
-                Citizen.Wait(0)
-            end
-            local txd = GetPedheadshotTxdString(handle)
+            Citizen.Wait(1500)
+            QBCore.Functions.Notify("Go get a " .. vehicles[vehicleChoice].name .. " at " .. spawns[spawnLocation].name .. "!", "success", 3500)
 
-            -- Add the notification text
-            BeginTextCommandThefeedPost("STRING")
-            AddTextComponentSubstringPlayerName("Go get a ~r~" .. vehicles[vehicleChoice].name .. "~w~ in ~g~" .. spawns[spawnLocation].name)
-            
-            -- Set the notification icon, title and subtitle.
-            local title = "Thug"
-            local subtitle = "Message"
-            local iconType = 0
-            local flash = false -- Flash doesn't seem to work no matter what.
-            EndTextCommandThefeedPostMessagetext(txd, txd, flash, iconType, title, subtitle)
+            -- -- Get the ped headshot image
+            -- local handle = RegisterPedheadshot(npc)
+            -- while not IsPedheadshotReady(handle) or not IsPedheadshotValid(handle) do
+            --     Citizen.Wait(0)
+            -- end
+            -- local txd = GetPedheadshotTxdString(handle)
 
-            -- Draw the notification
-            local showInBrief = true
-            local blink = false -- blink doesn't work when using icon notifications.
-            EndTextCommandThefeedPostTicker(blink, showInBrief)
+            -- -- Add the notification text
+            -- BeginTextCommandThefeedPost("STRING")
+            -- AddTextComponentSubstringPlayerName("Go get a ~r~" .. vehicles[vehicleChoice].name .. "~w~ in ~g~" .. spawns[spawnLocation].name)
             
-            -- Cleanup after yourself!
-            UnregisterPedheadshot(handle)
+            -- -- Set the notification icon, title and subtitle.
+            -- local title = "Thug"
+            -- local subtitle = "Message"
+            -- local iconType = 0
+            -- local flash = false -- Flash doesn't seem to work no matter what.
+            -- EndTextCommandThefeedPostMessagetext(txd, txd, flash, iconType, title, subtitle)
+
+            -- -- Draw the notification
+            -- local showInBrief = true
+            -- local blink = false -- blink doesn't work when using icon notifications.
+            -- EndTextCommandThefeedPostTicker(blink, showInBrief)
+            
+            -- -- Cleanup after yourself!
+            -- UnregisterPedheadshot(handle)
         end
 
         if aiEnabled then
-            ped = CreatePed(4, pedModel, spawnCoords.x, spawnCoords.y, spawnCoords.z, spawnHeading, true, true)
+            ped = CreatePed(4, pedModel, spawns[spawnLocation].x, spawns[spawnLocation].y, spawns[spawnLocation].z, 0, true, true)
             SetPedIntoVehicle(ped, vehicle, -1)
-            TaskVehicleDriveToCoord(ped, vehicle, destCoords.x, destCoords.y, destCoords.z, 30.0, 1.0, model, SetDriveTaskDrivingStyle(ped, 1074528293), 1.0, true)
+            -- TaskVehicleDriveToCoord(ped, vehicle, destCoords.x, destCoords.y, destCoords.z, 30.0, 1.0, model, SetDriveTaskDrivingStyle(ped, 1074528293), 1.0, true)
+            TaskVehicleDriveToCoordLongrange(ped, vehicle, destCoords.x, destCoords.y, destCoords.z, 30.0, SetDriveTaskDrivingStyle(ped, 1074528293), 1.0)
         end
 
         vehBlip = AddBlipForEntity(vehicle)
@@ -145,8 +130,6 @@ function carWithAi(aiEnabled)
         --print(Vdist2(destinations[destinationLocation].x, destinations[destinationLocation].y, destinations[destinationLocation].z, playerCoords.x, playerCoords.y, playerCoords.z))
         while (Vdist2(destinations[destinationLocation].x, destinations[destinationLocation].y, destinations[destinationLocation].z, playerCoords.x, playerCoords.y, playerCoords.z) > 5 or GetEntitySpeed(vehicle) > 0) and IsVehicleDriveable(vehicle, true) do
             playerCoords = GetEntityCoords(PlayerPedId())
-            print(playerCoords)
-            print(GetEntitySpeed(vehicle))
             Citizen.Wait(500)
         end
 
@@ -157,7 +140,7 @@ function carWithAi(aiEnabled)
             TaskLeaveVehicle(PlayerPedId(), vehicle, 256)
             Citizen.Wait(2000)
             print(GetVehicleEngineHealth(vehicle))
-            TriggerServerEvent("hiype-cardelivery:addMoney", Player.cid, destinations[destinationLocation].from + GetVehicleEngineHealth(vehicle))
+            TriggerServerEvent("hiype-cardelivery:addMoney", Player.cid, (destinations[destinationLocation].from + GetVehicleEngineHealth(vehicle) + GetVehicleBodyHealth(vehicle)) / 2.0)
             QBCore.Functions.DeleteVehicle(vehicle)
         else
             QBCore.Functions.Notify("The vehicle was destroyed! Job has been canceled.", "error", 3000)
@@ -168,25 +151,27 @@ function carWithAi(aiEnabled)
     end)
 end
 
-RegisterCommand("isLoggedIn-car", function()
-    print(isLoggedIn)
-end, false)
-
 RequestModel(pedModel)
 CreateThread(function()
     local notifSent = false
 
+    RequestModel(pedModel)
+
     while not HasModelLoaded(pedModel) do
-        Citizen.Wait(1)
+        Citizen.Wait(5)
     end
 
-    createPed()
+    npc = CreatePed(4, pedModel, npcCoords.x, npcCoords.y, npcCoords.z - 1, npcHeading, true, true)
+    FreezeEntityPosition(npc, true)
+    SetEntityInvincible(npc, true)
+    SetBlockingOfNonTemporaryEvents(npc, true)
+    TaskStartScenarioInPlace(npc, "WORLD_HUMAN_DRUG_DEALER", 0, true)
 
     while true do
         Citizen.Wait(0)
 
         local pCoords = GetEntityCoords(PlayerPedId())
-        if Vdist2(npcCoords, pCoords) < 20 and isLoggedIn then
+        if Vdist2(npcCoords, pCoords) < startSize and isLoggedIn then
             if IsControlPressed(0, 38) then
                 if isWorking then
                     isWorking = false
