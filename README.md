@@ -4,9 +4,12 @@ FiveM resource for servers with QbCore Framework.
 Start a mission for a car delivery, steal the car, drive it to the destination, profit.<br>
 Pretty simple so far, further updates coming soon.
 
+**Development still in progress**
+
 ## Features
 - Payout based on vehicle condition (Engine, Body)
 - Cooldown between each taken job
+- Vehicles spawn either parked or driving around (Soon)
 
 ## Requirements
 - [QbCore framework](https://github.com/qbcore-framework)

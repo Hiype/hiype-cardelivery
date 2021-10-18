@@ -8,9 +8,12 @@ local destinationLocation = nil
 local vehBlip = nil
 local destinationBlip = nil
 local npc = nil
-
+local spawns = nil
+local spawnDriving = false
 local player = nil
 local isLoggedIn = false
+
+local timeout = 0
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded')
 AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
@@ -36,7 +39,6 @@ end)
 RegisterNetEvent("hiype-cardelivery:update-cooldown")
 AddEventHandler("hiype-cardelivery:update-cooldown", function(status)
     cooldown = status
-    print("Cooldown updated")
 end)
 
 -- Adds a blip
@@ -48,7 +50,7 @@ BeginTextCommandSetBlipName("STRING")
 AddTextComponentString("Car delivery")
 EndTextCommandSetBlipName(blip)
 
-function carWithAi(aiEnabled)
+function carWithAi()
     CreateThread(function()
         TriggerServerEvent("hiype_cardelivery:start_cooldown")
         vehicleChoice = math.random(1, #vehicles)
@@ -57,6 +59,16 @@ function carWithAi(aiEnabled)
         RequestModel(model)
         while not HasModelLoaded(model) do
             Citizen.Wait(10)
+        end
+
+        -- Decides if the car should spawn parked or driving (Will be made soon)
+        if false then
+            spawns = drive_spawns
+            spawnDriving = true
+            print("Car will be driving around!")
+        else
+            spawns = parked_spawns
+            print("Car will be parked!")
         end
 
         spawnLocation = math.random(1, #spawns)
@@ -68,42 +80,10 @@ function carWithAi(aiEnabled)
         SetVehicleNeedsToBeHotwired(vehicle, true)
         SetModelAsNoLongerNeeded(model)
 
-        if notification then
-            Citizen.Wait(1500)
-            QBCore.Functions.Notify("Go get a " .. vehicles[vehicleChoice].name .. " at " .. spawns[spawnLocation].name .. "!", "success", 3500)
-
-            -- -- Get the ped headshot image
-            -- local handle = RegisterPedheadshot(npc)
-            -- while not IsPedheadshotReady(handle) or not IsPedheadshotValid(handle) do
-            --     Citizen.Wait(0)
-            -- end
-            -- local txd = GetPedheadshotTxdString(handle)
-
-            -- -- Add the notification text
-            -- BeginTextCommandThefeedPost("STRING")
-            -- AddTextComponentSubstringPlayerName("Go get a ~r~" .. vehicles[vehicleChoice].name .. "~w~ in ~g~" .. spawns[spawnLocation].name)
-            
-            -- -- Set the notification icon, title and subtitle.
-            -- local title = "Thug"
-            -- local subtitle = "Message"
-            -- local iconType = 0
-            -- local flash = false -- Flash doesn't seem to work no matter what.
-            -- EndTextCommandThefeedPostMessagetext(txd, txd, flash, iconType, title, subtitle)
-
-            -- -- Draw the notification
-            -- local showInBrief = true
-            -- local blink = false -- blink doesn't work when using icon notifications.
-            -- EndTextCommandThefeedPostTicker(blink, showInBrief)
-            
-            -- -- Cleanup after yourself!
-            -- UnregisterPedheadshot(handle)
-        end
-
-        if aiEnabled then
+        if spawnDriving then
             ped = CreatePed(4, pedModel, spawns[spawnLocation].x, spawns[spawnLocation].y, spawns[spawnLocation].z, 0, true, true)
             SetPedIntoVehicle(ped, vehicle, -1)
-            -- TaskVehicleDriveToCoord(ped, vehicle, destCoords.x, destCoords.y, destCoords.z, 30.0, 1.0, model, SetDriveTaskDrivingStyle(ped, 1074528293), 1.0, true)
-            TaskVehicleDriveToCoordLongrange(ped, vehicle, destCoords.x, destCoords.y, destCoords.z, 30.0, SetDriveTaskDrivingStyle(ped, 1074528293), 1.0)
+            TaskVehicleDriveWander(driver, veh, 15.0, SetDriveTaskDrivingStyle(ped, 786603))
         end
 
         vehBlip = AddBlipForEntity(vehicle)
@@ -111,8 +91,25 @@ function carWithAi(aiEnabled)
         SetBlipColour(vehBlip, 5)
         SetBlipRouteColour(vehBlip, 5)
 
-        while not IsPedInVehicle(PlayerPedId(), vehicle, false) do
-            Citizen.Wait(500)
+        if notification and not showAboveHead then
+            if spawnDriving then
+                QBCore.Functions.Notify("Go find a " .. vehicles[vehicleChoice].name .. " somewhere around " .. spawns[spawnLocation].name .. "!", "success", 3500)
+            else
+                QBCore.Functions.Notify("Go get a parked " .. vehicles[vehicleChoice].name .. " at " .. spawns[spawnLocation].name .. "!", "success", 3500)
+            end
+        end
+
+        while not IsPedInVehicle(player, vehicle, false) and isWorking do
+            Citizen.Wait(5)
+            timeout = timeout + 1
+            if notification and timeout < 200 and showAboveHead then
+                if spawnDriving then
+                    DrawText3D(npcCoords.x, npcCoords.y, npcCoords.z + 1, "Go find a ~g~" .. vehicles[vehicleChoice].name .. " ~w~somewhere around ~g~" .. spawns[spawnLocation].name .. "!")
+                else
+                    DrawText3D(npcCoords.x, npcCoords.y, npcCoords.z + 1, "Go get a parked ~g~" .. vehicles[vehicleChoice].name .. "~w~ at ~g~" .. spawns[spawnLocation].name .. "!")
+                end
+            end
+            
         end
 
         SetBlipRoute(vehBlip, false)
@@ -125,7 +122,7 @@ function carWithAi(aiEnabled)
         SetBlipRouteColour(destinationBlip, 5)
 
         local playerCoords = GetEntityCoords(PlayerPedId())
-        while (Vdist2(destinations[destinationLocation].x, destinations[destinationLocation].y, destinations[destinationLocation].z, playerCoords.x, playerCoords.y, playerCoords.z) > 5 or GetEntitySpeed(vehicle) > 0) and IsVehicleDriveable(vehicle, true) do
+        while (Vdist2(destinations[destinationLocation].x, destinations[destinationLocation].y, destinations[destinationLocation].z, playerCoords.x, playerCoords.y, playerCoords.z) > 8 or GetEntitySpeed(vehicle) > 0) and IsVehicleDriveable(vehicle, true) and isWorking do
             playerCoords = GetEntityCoords(PlayerPedId())
             Citizen.Wait(500)
         end
@@ -133,16 +130,18 @@ function carWithAi(aiEnabled)
         local Player = QBCore.Functions.GetPlayerData()
         SetBlipRoute(destinationBlip, false)
         RemoveBlip(destinationBlip)
-        if IsVehicleDriveable(vehicle, true) then
-            TaskLeaveVehicle(PlayerPedId(), vehicle, 256)
-            Citizen.Wait(2000)
-            print(GetVehicleEngineHealth(vehicle))
-            TriggerServerEvent("hiype-cardelivery:addMoney", Player.cid, (destinations[destinationLocation].from + GetVehicleEngineHealth(vehicle) + GetVehicleBodyHealth(vehicle)) / 2.0)
-            QBCore.Functions.DeleteVehicle(vehicle)
-        else
-            QBCore.Functions.Notify("The vehicle was destroyed! Job has been canceled.", "error", 3000)
-            Citizen.Wait(2000)
-            QBCore.Functions.DeleteVehicle(vehicle)
+        if isWorking then
+            if IsVehicleDriveable(vehicle, true) then
+                TaskLeaveVehicle(PlayerPedId(), vehicle, 256)
+                Citizen.Wait(2000)
+                print(GetVehicleEngineHealth(vehicle))
+                TriggerServerEvent("hiype-cardelivery:addMoney", Player.cid, (destinations[destinationLocation].from + GetVehicleEngineHealth(vehicle) + GetVehicleBodyHealth(vehicle)) / 2.0)
+                QBCore.Functions.DeleteVehicle(vehicle)
+            else
+                QBCore.Functions.Notify("The vehicle was destroyed! Job has been canceled.", "error", 3000)
+                Citizen.Wait(2000)
+                QBCore.Functions.DeleteVehicle(vehicle)
+            end
         end
         isWorking = false
     end)
@@ -169,18 +168,20 @@ CreateThread(function()
 
         local pCoords = GetEntityCoords(PlayerPedId())
         if Vdist2(npcCoords, pCoords) < startSize and isLoggedIn then
+            timeout = 0
             if IsControlPressed(0, 38) then
                 if isWorking then
                     isWorking = false
                     QBCore.Functions.Notify("Car delivery job has been quit", "error", 3000)
                     QBCore.Functions.DeleteVehicle(vehicle)
+                    timeout = 200
                     DeletePed(ped)
                     Citizen.Wait(500)
                 else 
                     if not cooldown then
                         isWorking = true
                         QBCore.Functions.Notify("Car delivery job started", "success", 3000)
-                        carWithAi(aiEnabled)
+                        carWithAi()
                         Citizen.Wait(500)
                     else
                         TriggerServerEvent("hiype-cardelivery:request-cooldown-time")
@@ -203,3 +204,18 @@ CreateThread(function()
         end
     end
 end)
+
+function DrawText3D(x, y, z, text)
+    SetTextScale(0.35, 0.35)
+    SetTextFont(4)
+    SetTextProportional(1)
+    SetTextColour(255, 255, 255, 215)
+    SetTextEntry("STRING")
+    SetTextCentre(true)
+    AddTextComponentString(text)
+    SetDrawOrigin(x, y, z, 0)
+    DrawText(0.0, 0.0)
+    local factor = (string.len(text)) / 370
+    DrawRect(0.0, 0.0 + 0.0125, 0.017 + factor, 0.03, 0, 0, 0, 75)
+    ClearDrawOrigin()
+end

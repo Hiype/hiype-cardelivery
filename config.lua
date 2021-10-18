@@ -1,9 +1,6 @@
--- An npc drives with the car to your destCoords (not sure if works for long range)
-aiEnabled = false
-destCoords = vector3(-79.69, -1409.46, 29.32) -- Coords where the npc needs to drive to
-
--- Sends you a message of where and what car to get (Problems showing under status UI)
+-- Sends you a message of where and what car to get
 notification = true
+showAboveHead = true                                    -- Shows up above the npcs head, otherwise in HUD
 
 -- Npc spawn location
 npcHeading = 205.9
@@ -12,7 +9,7 @@ npcCoords = vector3(-79.25, -1392.6, 29.32)
 -- The size of the circle where player enters to start the job
 startSize = 20
 
--- Cooldown in seconds that forbids players to take this job all the time
+-- Cooldown in seconds that forbids players to take this job again if it was recently taken
 cooldown = 120
 
 -- Change the string to have a different npc model
@@ -27,11 +24,17 @@ vehicles = {
     {model="subwrx", name="Subaru Impreza WRX STI 2004"},
 }
 
--- Locations where the vehicles spawn
-spawns = {
+-- Locations where parked vehicles spawn
+parked_spawns = {
     {name="Rancho", heading=302.58, x=548.79, y=-1930.65, z=24.25},
     {name="Cypress flats", heading=179.45, x=998.85, y=-1944.38, z=30.47},
     {name="La mesa inside a garage", heading=263.13, x=946.4, y=-1697.76, z=29.52},
+}
+
+-- Locations where driving vehicles spawn
+drive_spawns = {
+    {name="Little Seoul", heading=179, x=-789.6, y=-821.9, z=20.43},
+    {name="Vespucci", heading=10.5, x=-1320.7, y=-1213.28, z=4.79},
 }
 
 -- Delivery locations for stolen vehicles
