@@ -149,14 +149,21 @@ function carWithAi()
             end
         end
 
+        local zCoord = 0
         while not IsPedInVehicle(player, vehicle, false) and isWorking do
-            Citizen.Wait(20)
+            Citizen.Wait(5)
+            if showNpc then
+                zCoord = npcCoords.z + 1
+            else
+                zCoord = npcCoords.z
+            end
+            
             timeout = timeout + 1
             if notification and timeout < 200 and showAboveHead then
                 if spawnDriving then
-                    DrawText3D(npcCoords.x, npcCoords.y, npcCoords.z, "Go find a ~g~" .. vehicles[vehicleChoice].name .. " ~w~somewhere around ~g~" .. spawns[spawnLocation].name .. "!")
+                    DrawText3D(npcCoords.x, npcCoords.y, zCoord, "Go find a ~g~" .. vehicles[vehicleChoice].name .. " ~w~somewhere around ~g~" .. spawns[spawnLocation].name .. "!")
                 else
-                    DrawText3D(npcCoords.x, npcCoords.y, npcCoords.z, "Go get a parked ~g~" .. vehicles[vehicleChoice].name .. "~w~ at ~g~" .. spawns[spawnLocation].name .. "!")
+                    DrawText3D(npcCoords.x, npcCoords.y, zCoord, "Go get a parked ~g~" .. vehicles[vehicleChoice].name .. "~w~ at ~g~" .. spawns[spawnLocation].name .. "!")
                 end
             end
         end
