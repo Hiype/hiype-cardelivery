@@ -7,13 +7,17 @@ local spawnLocation = nil
 local destinationLocation = nil
 local vehBlip = nil
 local destinationBlip = nil
-local npc = nil
 local spawns = nil
 local spawnDriving = false
 local player = nil
 local isLoggedIn = false
+local table = nil
+local laptop = nil
+local npc = nil
 
 local timeout = 0
+local tableModel = GetHashKey("prop_table_03b")
+local laptopModel = GetHashKey("prop_laptop_01a")
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded')
 AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
@@ -28,12 +32,46 @@ AddEventHandler('QBCore:Client:OnPlayerUnload', function()
 end)
 
 -- Allows the ability to reload this resource live
+-- Remove the if for live version
 AddEventHandler('onResourceStart', function(resource)
     if resource == GetCurrentResourceName() then
         Wait(100)
         player = PlayerPedId()
         isLoggedIn = true
     end
+
+    CreateThread(function()
+        if not showNpc then
+            RequestModel(tableModel)
+            while not HasModelLoaded(tableModel) do
+                Citizen.Wait(5)
+            end
+
+            RequestModel(laptopModel)
+            while not HasModelLoaded(laptopModel) do
+                Citizen.Wait(5)
+            end
+
+
+            table = CreateObject(tableModel, npcCoords.x, npcCoords.y, npcCoords.z - 0.99, false, true, false)
+            laptop = CreateObject(laptopModel, npcCoords.x, npcCoords.y, npcCoords.z - 0.2, false, true, false)
+        
+            FreezeEntityPosition(table, true)
+            FreezeEntityPosition(laptop, true)
+        else
+            RequestModel(pedModel)
+
+            while not HasModelLoaded(pedModel) do
+                Citizen.Wait(5)
+            end
+            
+            npc = CreatePed(4, pedModel, npcCoords.x, npcCoords.y, npcCoords.z - 1, npcHeading, false, true)
+            FreezeEntityPosition(npc, true)
+            SetEntityInvincible(npc, true)
+            SetBlockingOfNonTemporaryEvents(npc, true)
+            TaskStartScenarioInPlace(npc, "WORLD_HUMAN_DRUG_DEALER", 0, true)
+        end
+    end)
 end)
 
 RegisterNetEvent("hiype-cardelivery:update-cooldown")
@@ -71,12 +109,24 @@ function carWithAi()
             print("Car will be parked!")
         end
 
-        spawnLocation = math.random(1, #spawns)
+        if spawns == nil or #spawns < 1 then
+            QBCore.Functions.Notify("No spawn locations in config file, quitting the job", 'error', 5000)
+            isWorking = false
+            return
+        end
+
+        if #spawns >= 1 then
+            spawnLocation = math.random(1, #spawns)
+        else
+            spawnLocation = #spawns
+        end
+
         vehicle = CreateVehicle(model, spawns[spawnLocation].x, spawns[spawnLocation].y, spawns[spawnLocation].z, spawns[spawnLocation].heading, true, true)
         local netid = NetworkGetNetworkIdFromEntity(vehicle)
 
         SetVehicleHasBeenOwnedByPlayer(vehicle, true)
         SetNetworkIdCanMigrate(netid, true)
+        SetVehicleDoorsLocked(vehicle, 2)
         SetVehicleNeedsToBeHotwired(vehicle, true)
         SetModelAsNoLongerNeeded(model)
 
@@ -100,16 +150,15 @@ function carWithAi()
         end
 
         while not IsPedInVehicle(player, vehicle, false) and isWorking do
-            Citizen.Wait(5)
+            Citizen.Wait(20)
             timeout = timeout + 1
             if notification and timeout < 200 and showAboveHead then
                 if spawnDriving then
-                    DrawText3D(npcCoords.x, npcCoords.y, npcCoords.z + 1, "Go find a ~g~" .. vehicles[vehicleChoice].name .. " ~w~somewhere around ~g~" .. spawns[spawnLocation].name .. "!")
+                    DrawText3D(npcCoords.x, npcCoords.y, npcCoords.z, "Go find a ~g~" .. vehicles[vehicleChoice].name .. " ~w~somewhere around ~g~" .. spawns[spawnLocation].name .. "!")
                 else
-                    DrawText3D(npcCoords.x, npcCoords.y, npcCoords.z + 1, "Go get a parked ~g~" .. vehicles[vehicleChoice].name .. "~w~ at ~g~" .. spawns[spawnLocation].name .. "!")
+                    DrawText3D(npcCoords.x, npcCoords.y, npcCoords.z, "Go get a parked ~g~" .. vehicles[vehicleChoice].name .. "~w~ at ~g~" .. spawns[spawnLocation].name .. "!")
                 end
             end
-            
         end
 
         SetBlipRoute(vehBlip, false)
@@ -122,7 +171,7 @@ function carWithAi()
         SetBlipRouteColour(destinationBlip, 5)
 
         local playerCoords = GetEntityCoords(PlayerPedId())
-        while (Vdist2(destinations[destinationLocation].x, destinations[destinationLocation].y, destinations[destinationLocation].z, playerCoords.x, playerCoords.y, playerCoords.z) > 8 or GetEntitySpeed(vehicle) > 0) and IsVehicleDriveable(vehicle, true) and isWorking do
+        while (Vdist2(destinations[destinationLocation].x, destinations[destinationLocation].y, destinations[destinationLocation].z, playerCoords.x, playerCoords.y, playerCoords.z) > 8 or GetEntitySpeed(vehicle) > 0) and IsVehicleDriveable(vehicle, true) and GetVehicleEngineHealth(vehicle) > 50 and isWorking do
             playerCoords = GetEntityCoords(PlayerPedId())
             Citizen.Wait(500)
         end
@@ -131,7 +180,7 @@ function carWithAi()
         SetBlipRoute(destinationBlip, false)
         RemoveBlip(destinationBlip)
         if isWorking then
-            if IsVehicleDriveable(vehicle, true) then
+            if GetVehicleEngineHealth(vehicle) > 50 and IsVehicleDriveable(vehicle, true) then
                 TaskLeaveVehicle(PlayerPedId(), vehicle, 256)
                 Citizen.Wait(2000)
                 print(GetVehicleEngineHealth(vehicle))
@@ -147,21 +196,8 @@ function carWithAi()
     end)
 end
 
-RequestModel(pedModel)
 CreateThread(function()
     local notifSent = false
-
-    RequestModel(pedModel)
-
-    while not HasModelLoaded(pedModel) do
-        Citizen.Wait(5)
-    end
-
-    npc = CreatePed(4, pedModel, npcCoords.x, npcCoords.y, npcCoords.z - 1, npcHeading, true, true)
-    FreezeEntityPosition(npc, true)
-    SetEntityInvincible(npc, true)
-    SetBlockingOfNonTemporaryEvents(npc, true)
-    TaskStartScenarioInPlace(npc, "WORLD_HUMAN_DRUG_DEALER", 0, true)
 
     while true do
         Citizen.Wait(0)

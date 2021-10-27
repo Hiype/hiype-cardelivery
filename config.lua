@@ -3,6 +3,7 @@ notification = true
 showAboveHead = true                                    -- Shows up above the npcs head, otherwise in HUD
 
 -- Npc spawn location
+showNpc = true
 npcHeading = 205.9
 npcCoords = vector3(-79.25, -1392.6, 29.32)
 
