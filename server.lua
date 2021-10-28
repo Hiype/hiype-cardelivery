@@ -27,6 +27,6 @@ end)
 
 RegisterNetEvent("hiype-cardelivery:addMoney")
 AddEventHandler("hiype-cardelivery:addMoney", function(id, amount)
-    local Player = QBCore.Functions.GetPlayer(id)
+    local Player = QBCore.Functions.GetPlayer(source)
     Player.Functions.AddMoney("cash", amount)
 end)

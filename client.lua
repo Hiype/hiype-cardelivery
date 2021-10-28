@@ -137,6 +137,7 @@ function carWithAi()
         end
 
         vehBlip = AddBlipForEntity(vehicle)
+
         SetBlipRoute(vehBlip, true)
         SetBlipColour(vehBlip, 5)
         SetBlipRouteColour(vehBlip, 5)
@@ -150,8 +151,9 @@ function carWithAi()
         end
 
         local zCoord = 0
-        while not IsPedInVehicle(player, vehicle, false) and isWorking do
-            Citizen.Wait(5)
+        player = PlayerPedId()
+        while not IsPedInVehicle(player, vehicle, true) and isWorking do
+            Citizen.Wait(1)
             if showNpc then
                 zCoord = npcCoords.z + 1
             else
@@ -170,7 +172,7 @@ function carWithAi()
 
         SetBlipRoute(vehBlip, false)
         RemoveBlip(vehBlip)
-
+        
         destinationLocation = math.random(1, #destinations)
         destinationBlip = AddBlipForCoord(destinations[destinationLocation].x, destinations[destinationLocation].y, destinations[destinationLocation].z)
         SetBlipRoute(destinationBlip, true)
@@ -179,8 +181,8 @@ function carWithAi()
 
         local playerCoords = GetEntityCoords(PlayerPedId())
         while (Vdist2(destinations[destinationLocation].x, destinations[destinationLocation].y, destinations[destinationLocation].z, playerCoords.x, playerCoords.y, playerCoords.z) > 8 or GetEntitySpeed(vehicle) > 0) and IsVehicleDriveable(vehicle, true) and GetVehicleEngineHealth(vehicle) > 50 and isWorking do
-            playerCoords = GetEntityCoords(PlayerPedId())
             Citizen.Wait(500)
+            playerCoords = GetEntityCoords(PlayerPedId())
         end
 
         local Player = QBCore.Functions.GetPlayerData()
@@ -190,7 +192,6 @@ function carWithAi()
             if GetVehicleEngineHealth(vehicle) > 50 and IsVehicleDriveable(vehicle, true) then
                 TaskLeaveVehicle(PlayerPedId(), vehicle, 256)
                 Citizen.Wait(2000)
-                print(GetVehicleEngineHealth(vehicle))
                 TriggerServerEvent("hiype-cardelivery:addMoney", Player.cid, (destinations[destinationLocation].from + GetVehicleEngineHealth(vehicle) + GetVehicleBodyHealth(vehicle)) / 2.0)
                 QBCore.Functions.DeleteVehicle(vehicle)
             else
