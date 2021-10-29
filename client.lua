@@ -11,6 +11,7 @@ local spawns = nil
 local spawnDriving = false
 local player = nil
 local isLoggedIn = false
+local startEntitySpawned = false
 local table = nil
 local laptop = nil
 local npc = nil
@@ -24,6 +25,42 @@ AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
     TriggerServerEvent("qb-clothes:loadPlayerSkin")
     isLoggedIn = true
     player = PlayerPedId()
+
+    if not startEntitySpawned then
+        CreateThread(function()
+            if not showNpc then
+                RequestModel(tableModel)
+                while not HasModelLoaded(tableModel) do
+                    Citizen.Wait(5)
+                end
+
+                RequestModel(laptopModel)
+                while not HasModelLoaded(laptopModel) do
+                    Citizen.Wait(5)
+                end
+
+
+                table = CreateObject(tableModel, npcCoords.x, npcCoords.y, npcCoords.z - 0.99, false, true, false)
+                laptop = CreateObject(laptopModel, npcCoords.x, npcCoords.y, npcCoords.z - 0.2, false, true, false)
+            
+                FreezeEntityPosition(table, true)
+                FreezeEntityPosition(laptop, true)
+            else
+                RequestModel(pedModel)
+
+                while not HasModelLoaded(pedModel) do
+                    Citizen.Wait(5)
+                end
+                
+                npc = CreatePed(4, pedModel, npcCoords.x, npcCoords.y, npcCoords.z - 1, npcHeading, false, true)
+                FreezeEntityPosition(npc, true)
+                SetEntityInvincible(npc, true)
+                SetBlockingOfNonTemporaryEvents(npc, true)
+                TaskStartScenarioInPlace(npc, "WORLD_HUMAN_DRUG_DEALER", 0, true)
+            end
+            startEntitySpawned = true
+        end)
+    end
 end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerUnload')
@@ -40,38 +77,41 @@ AddEventHandler('onResourceStart', function(resource)
         isLoggedIn = true
     end
 
-    CreateThread(function()
-        if not showNpc then
-            RequestModel(tableModel)
-            while not HasModelLoaded(tableModel) do
-                Citizen.Wait(5)
-            end
+    if not startEntitySpawned then
+        CreateThread(function()
+            if not showNpc then
+                RequestModel(tableModel)
+                while not HasModelLoaded(tableModel) do
+                    Citizen.Wait(5)
+                end
 
-            RequestModel(laptopModel)
-            while not HasModelLoaded(laptopModel) do
-                Citizen.Wait(5)
-            end
+                RequestModel(laptopModel)
+                while not HasModelLoaded(laptopModel) do
+                    Citizen.Wait(5)
+                end
 
 
-            table = CreateObject(tableModel, npcCoords.x, npcCoords.y, npcCoords.z - 0.99, false, true, false)
-            laptop = CreateObject(laptopModel, npcCoords.x, npcCoords.y, npcCoords.z - 0.2, false, true, false)
-        
-            FreezeEntityPosition(table, true)
-            FreezeEntityPosition(laptop, true)
-        else
-            RequestModel(pedModel)
-
-            while not HasModelLoaded(pedModel) do
-                Citizen.Wait(5)
-            end
+                table = CreateObject(tableModel, npcCoords.x, npcCoords.y, npcCoords.z - 0.99, false, true, false)
+                laptop = CreateObject(laptopModel, npcCoords.x, npcCoords.y, npcCoords.z - 0.2, false, true, false)
             
-            npc = CreatePed(4, pedModel, npcCoords.x, npcCoords.y, npcCoords.z - 1, npcHeading, false, true)
-            FreezeEntityPosition(npc, true)
-            SetEntityInvincible(npc, true)
-            SetBlockingOfNonTemporaryEvents(npc, true)
-            TaskStartScenarioInPlace(npc, "WORLD_HUMAN_DRUG_DEALER", 0, true)
-        end
-    end)
+                FreezeEntityPosition(table, true)
+                FreezeEntityPosition(laptop, true)
+            else
+                RequestModel(pedModel)
+
+                while not HasModelLoaded(pedModel) do
+                    Citizen.Wait(5)
+                end
+                
+                npc = CreatePed(4, pedModel, npcCoords.x, npcCoords.y, npcCoords.z - 1, npcHeading, false, true)
+                FreezeEntityPosition(npc, true)
+                SetEntityInvincible(npc, true)
+                SetBlockingOfNonTemporaryEvents(npc, true)
+                TaskStartScenarioInPlace(npc, "WORLD_HUMAN_DRUG_DEALER", 0, true)
+            end
+            startEntitySpawned = true
+        end)
+    end
 end)
 
 RegisterNetEvent("hiype-cardelivery:update-cooldown")
@@ -152,7 +192,7 @@ function carWithAi()
 
         local zCoord = 0
         player = PlayerPedId()
-        while not IsPedInVehicle(player, vehicle, true) and isWorking do
+        while not IsPedInVehicle(player, vehicle, true) and isWorking and IsVehicleDriveable(vehicle, true) and GetVehicleEngineHealth(vehicle) > 50 do
             Citizen.Wait(1)
             if showNpc then
                 zCoord = npcCoords.z + 1
