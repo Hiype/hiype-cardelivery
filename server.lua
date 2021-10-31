@@ -26,7 +26,12 @@ AddEventHandler("hiype-cardelivery:request-cooldown-time", function()
 end)
 
 RegisterNetEvent("hiype-cardelivery:addMoney")
-AddEventHandler("hiype-cardelivery:addMoney", function(id, amount)
-    local Player = QBCore.Functions.GetPlayer(source)
-    Player.Functions.AddMoney("cash", amount)
+AddEventHandler("hiype-cardelivery:addMoney", function(amount)
+    if payInCash then
+        local Player = QBCore.Functions.GetPlayer(source)
+        Player.Functions.AddMoney("cash", amount)
+    else
+        local Player = QBCore.Functions.GetPlayer(source)
+        Player.Functions.AddMoney("bank", amount)
+    end
 end)

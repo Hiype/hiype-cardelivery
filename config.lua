@@ -13,6 +13,15 @@ startSize = 20
 -- Cooldown in seconds that forbids players to take this job again if it was recently taken
 cooldown = 120
 
+-- Set true if you want to be able to keep the vehicle and cancel the job
+abilityToKeepVehicle = true
+
+-- Time in seconds in which you need to choose to keep the vehicle
+choiceTimer = 20
+
+-- Payout adds money as cash, if false then adds it to your bank
+payInCash = true
+
 -- Change the string to have a different npc model
 pedModel = GetHashKey("g_m_y_lost_01")
 

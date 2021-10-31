@@ -140,7 +140,7 @@ function carWithAi()
         end
 
         -- Decides if the car should spawn parked or driving (Will be made soon)
-        if false then
+        if math.random(0, 10) % 2 == 1 then
             spawns = drive_spawns
             spawnDriving = true
             print("Car will be driving around!")
@@ -166,8 +166,16 @@ function carWithAi()
 
         SetVehicleHasBeenOwnedByPlayer(vehicle, true)
         SetNetworkIdCanMigrate(netid, true)
-        SetVehicleDoorsLocked(vehicle, 2)
-        SetVehicleNeedsToBeHotwired(vehicle, true)
+
+        if spawnDriving then
+            SetVehicleDoorsLocked(vehicle, 1)
+            SetVehicleNeedsToBeHotwired(vehicle, false)
+        else
+            SetVehicleDoorsLocked(vehicle, 2)
+            SetVehicleNeedsToBeHotwired(vehicle, true)
+        end
+
+        SetEntityAsMissionEntity(vehicle, true, true)
         SetModelAsNoLongerNeeded(model)
 
         if spawnDriving then
@@ -193,14 +201,18 @@ function carWithAi()
         local zCoord = 0
         player = PlayerPedId()
         while not IsPedInVehicle(player, vehicle, true) and isWorking and IsVehicleDriveable(vehicle, true) and GetVehicleEngineHealth(vehicle) > 50 do
-            Citizen.Wait(1)
+            Citizen.Wait(5)
             if showNpc then
                 zCoord = npcCoords.z + 1
             else
                 zCoord = npcCoords.z
             end
+
+            if spawnDriving then
+                TaskVehicleDriveWander(driver, veh, 15.0, SetDriveTaskDrivingStyle(ped, 786603))
+            end
             
-            timeout = timeout + 1
+            timeout = timeout + 0.5
             if notification and timeout < 200 and showAboveHead then
                 if spawnDriving then
                     DrawText3D(npcCoords.x, npcCoords.y, zCoord, "Go find a ~g~" .. vehicles[vehicleChoice].name .. " ~w~somewhere around ~g~" .. spawns[spawnLocation].name .. "!")
@@ -219,20 +231,30 @@ function carWithAi()
         SetBlipColour(destinationBlip, 5)
         SetBlipRouteColour(destinationBlip, 5)
 
-        local playerCoords = GetEntityCoords(PlayerPedId())
-        while (Vdist2(destinations[destinationLocation].x, destinations[destinationLocation].y, destinations[destinationLocation].z, playerCoords.x, playerCoords.y, playerCoords.z) > 8 or GetEntitySpeed(vehicle) > 0) and IsVehicleDriveable(vehicle, true) and GetVehicleEngineHealth(vehicle) > 50 and isWorking do
-            Citizen.Wait(500)
-            playerCoords = GetEntityCoords(PlayerPedId())
+        local vehCoords = GetEntityCoords(vehicle)
+        local countdown = choiceTimer * 1000
+        QBCore.Functions.Notify("In the next " .. choiceTimer .. " seconds, press U to keep the car and leave the job", "primary", 6000)
+
+        while (Vdist2(destinations[destinationLocation].x, destinations[destinationLocation].y, destinations[destinationLocation].z, vehCoords.x, vehCoords.y, vehCoords.z) > 15 or GetEntitySpeed(vehicle) > 0) and IsVehicleDriveable(vehicle, true) and GetVehicleEngineHealth(vehicle) > 50 and isWorking do
+            Citizen.Wait(8)
+            vehCoords = GetEntityCoords(vehicle)
+            if abilityToKeepVehicle and countdown > choiceTimer then
+                if IsControlPressed( 0, 303) then
+                    isWorking = false
+                    QBCore.Functions.Notify("Keep the car, job is canceled", "primary", 5000)
+                end
+                countdown = countdown - 8
+            end
         end
 
-        local Player = QBCore.Functions.GetPlayerData()
         SetBlipRoute(destinationBlip, false)
         RemoveBlip(destinationBlip)
+
         if isWorking then
             if GetVehicleEngineHealth(vehicle) > 50 and IsVehicleDriveable(vehicle, true) then
                 TaskLeaveVehicle(PlayerPedId(), vehicle, 256)
                 Citizen.Wait(2000)
-                TriggerServerEvent("hiype-cardelivery:addMoney", Player.cid, (destinations[destinationLocation].from + GetVehicleEngineHealth(vehicle) + GetVehicleBodyHealth(vehicle)) / 2.0)
+                TriggerServerEvent("hiype-cardelivery:addMoney", math.random(destinations[destinationLocation].from, destinations[destinationLocation].to) + (GetVehicleEngineHealth(vehicle) + GetVehicleBodyHealth(vehicle) / 2.0))
                 QBCore.Functions.DeleteVehicle(vehicle)
             else
                 QBCore.Functions.Notify("The vehicle was destroyed! Job has been canceled.", "error", 3000)
@@ -248,7 +270,7 @@ CreateThread(function()
     local notifSent = false
 
     while true do
-        Citizen.Wait(0)
+        Citizen.Wait(10)
 
         local pCoords = GetEntityCoords(PlayerPedId())
         if Vdist2(npcCoords, pCoords) < startSize and isLoggedIn then
