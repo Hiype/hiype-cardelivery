@@ -7,6 +7,9 @@ showNpc = true
 npcHeading = 205.9
 npcCoords = vector3(-79.25, -1392.6, 29.32)
 
+-- The amount of xp subtracted for keeping the car or destroying it
+rankPenalty = -120
+
 -- The size of the circle where player enters to start the job
 startSize = 20
 

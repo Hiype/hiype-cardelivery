@@ -15,14 +15,21 @@ local startEntitySpawned = false
 local table = nil
 local laptop = nil
 local npc = nil
+local rank = nil
 
 local timeout = 0
 local tableModel = GetHashKey("prop_table_03b")
 local laptopModel = GetHashKey("prop_laptop_01a")
 
+RegisterNetEvent('hiype-cardelivery:client-receive-rank')
+AddEventHandler('hiype-cardelivery:client-receive-rank', function(rank_in)
+    rank = rank_in
+end)
+
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded')
 AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
     TriggerServerEvent("qb-clothes:loadPlayerSkin")
+    TriggerServerEvent('hiype-cardelivery:GetMetaData')
     isLoggedIn = true
     player = PlayerPedId()
 
@@ -76,6 +83,8 @@ AddEventHandler('onResourceStart', function(resource)
         player = PlayerPedId()
         isLoggedIn = true
     end
+
+    TriggerServerEvent('hiype-cardelivery:GetMetaData')
 
     if not startEntitySpawned then
         CreateThread(function()
@@ -233,7 +242,10 @@ function carWithAi()
 
         local vehCoords = GetEntityCoords(vehicle)
         local countdown = choiceTimer * 1000
-        QBCore.Functions.Notify("In the next " .. choiceTimer .. " seconds, press U to keep the car and leave the job", "primary", 6000)
+
+        if IsVehicleDriveable(vehicle, true) and GetVehicleEngineHealth(vehicle) > 50 then
+            QBCore.Functions.Notify("In the next " .. choiceTimer .. " seconds, press U to keep the car and leave the job", "primary", 6000)
+        end
 
         while (Vdist2(destinations[destinationLocation].x, destinations[destinationLocation].y, destinations[destinationLocation].z, vehCoords.x, vehCoords.y, vehCoords.z) > 15 or GetEntitySpeed(vehicle) > 0) and IsVehicleDriveable(vehicle, true) and GetVehicleEngineHealth(vehicle) > 50 and isWorking do
             Citizen.Wait(8)
@@ -241,7 +253,11 @@ function carWithAi()
             if abilityToKeepVehicle and countdown > choiceTimer then
                 if IsControlPressed( 0, 303) then
                     isWorking = false
+                    UpdateRank(rankPenalty)
+                    
                     QBCore.Functions.Notify("Keep the car, job is canceled", "primary", 5000)
+                    QBCore.Functions.Notify(tostring(rankPenalty) .. " XP subtracted from car delivery rank", "error", 5000)
+                    Citizen.Wait(300)
                 end
                 countdown = countdown - 8
             end
@@ -252,12 +268,19 @@ function carWithAi()
 
         if isWorking then
             if GetVehicleEngineHealth(vehicle) > 50 and IsVehicleDriveable(vehicle, true) then
+                local extraPoints = GetVehicleEngineHealth(vehicle) + GetVehicleBodyHealth(vehicle)
                 TaskLeaveVehicle(PlayerPedId(), vehicle, 256)
                 Citizen.Wait(2000)
-                TriggerServerEvent("hiype-cardelivery:addMoney", math.random(destinations[destinationLocation].from, destinations[destinationLocation].to) + (GetVehicleEngineHealth(vehicle) + GetVehicleBodyHealth(vehicle) / 2.0))
+                TriggerServerEvent("hiype-cardelivery:addMoney", math.random(destinations[destinationLocation].from, destinations[destinationLocation].to) + (extraPoints / 2.0))
+
+                extraPoints = math.floor(extraPoints / 10.0)
+                UpdateRank(100 + extraPoints)
+                QBCore.Functions.Notify("Added " .. (100 + extraPoints) .. " xp to car delivery rank", "success", 5000)
                 QBCore.Functions.DeleteVehicle(vehicle)
             else
+                UpdateRank(rankPenalty)
                 QBCore.Functions.Notify("The vehicle was destroyed! Job has been canceled.", "error", 3000)
+                QBCore.Functions.Notify("120 XP subtracted from car delivery rank", "error", 5000)
                 Citizen.Wait(2000)
                 QBCore.Functions.DeleteVehicle(vehicle)
             end
@@ -271,8 +294,8 @@ CreateThread(function()
 
     while true do
         Citizen.Wait(10)
-
         local pCoords = GetEntityCoords(PlayerPedId())
+
         if Vdist2(npcCoords, pCoords) < startSize and isLoggedIn then
             timeout = 0
             if IsControlPressed(0, 38) then
@@ -280,8 +303,8 @@ CreateThread(function()
                     isWorking = false
                     QBCore.Functions.Notify("Car delivery job has been quit", "error", 3000)
                     QBCore.Functions.DeleteVehicle(vehicle)
-                    timeout = 200
                     DeletePed(ped)
+                    timeout = 200
                     Citizen.Wait(500)
                 else 
                     if not cooldown then
@@ -311,6 +334,7 @@ CreateThread(function()
     end
 end)
 
+-- Code taken from QBCore resources, QBCore.Functions.DrawText3D
 function DrawText3D(x, y, z, text)
     SetTextScale(0.35, 0.35)
     SetTextFont(4)
@@ -325,3 +349,65 @@ function DrawText3D(x, y, z, text)
     DrawRect(0.0, 0.0 + 0.0125, 0.017 + factor, 0.03, 0, 0, 0, 75)
     ClearDrawOrigin()
 end
+
+function UpdateRank(change)
+    change = tonumber(change)
+
+    if rank == nil then
+        TriggerServerEvent('hiype-cardelivery:GetMetaData')
+    end
+
+    if rank + change < 0 then
+        change = rank * -1
+    end
+
+    while true do
+        Citizen.Wait(500)
+
+        if rank ~= nil then
+            TriggerServerEvent('QBCore:Server:SetMetaData', 'cardeliveryxp', rank + change)
+            rank = rank + change
+            break
+        else
+            TriggerServerEvent('hiype-cardelivery:GetMetaData')
+        end
+    end
+end
+
+function SetRank(change)
+    change = tonumber(change)
+
+    while true do
+        Citizen.Wait(500)
+
+        if rank ~= nil then
+            TriggerServerEvent('QBCore:Server:SetMetaData', 'cardeliveryxp', change)
+            rank = rank + change
+            break
+        else
+            TriggerServerEvent('hiype-cardelivery:GetMetaData')
+        end
+    end
+end
+
+RegisterCommand('cardelivery', function(source, args, rawCommand)
+    if args[1] == "rank" then
+        TriggerServerEvent('hiype-cardelivery:GetMetaData')
+        if rank ~= nil then
+            QBCore.Functions.Notify("Current rank " .. rank, "primary")
+        else
+            QBCore.Functions.Notify("Current rank nil", "primary")
+            TriggerServerEvent('hiype-cardelivery:GetMetaData')
+        end
+    else
+        if args[1] == "add" then
+                UpdateRank(args[2])
+        else
+            if args[1] == "set" then
+                SetRank(args[2])
+            else
+                QBCore.Functions.Notify("No such parameter", "error")
+            end 
+        end
+    end
+end, false)
