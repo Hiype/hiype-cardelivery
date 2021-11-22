@@ -48,6 +48,6 @@ Once you arrive at the destination, stop the car inside the objective blip on mi
 
 ## Support
 
-If you wish to support me in any way, you can do so through this link -> [Streamlabs donos to twitch](https://streamlabs.com/hiype/tip)<br>
-This link will redirect you to a Streamlabs donation page which shows the donation on my twitch stream if I'm live<br>
+If you wish to support me in any way, you can do so through this link -> [Streamelements donos](https://streamelements.com/therealhiype/tip)<br>
+This link will redirect you to a Streamelements donation page which shows the donation on my twitch stream if I'm live<br>
 P.S Im rarely live and this was just easier to do
