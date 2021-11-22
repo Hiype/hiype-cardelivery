@@ -12,7 +12,7 @@ Pretty simple so far, further updates coming soon.
 - Payout based on vehicle condition (Engine, Body)
 - Cooldown between each taken job
 - Vehicles spawn either parked or driving around (Soon)
-
+- Very basic rank system, nothing changes yet
 - **Planned some time**: Rank system with better cars spawning the more xp you get.
 
 ## Requirements

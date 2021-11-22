@@ -149,7 +149,7 @@ function carWithAi()
         end
 
         -- Decides if the car should spawn parked or driving (Will be made soon)
-        if math.random(0, 10) % 2 == 1 then
+        if math.random(0, 10) % 2 == 1 and driveAround then
             spawns = drive_spawns
             spawnDriving = true
             print("Car will be driving around!")

@@ -19,6 +19,10 @@ cooldown = 120
 -- Set true if you want to be able to keep the vehicle and cancel the job
 abilityToKeepVehicle = true
 
+-- DOES NOT WORK YET if set to true, but does not break the script, the job can still be completed
+-- Should the stealable car be spawned with a driver so it drives around
+driveAround = false
+
 -- Time in seconds in which you need to choose to keep the vehicle
 choiceTimer = 20
 

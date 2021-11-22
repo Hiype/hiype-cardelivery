@@ -67,7 +67,6 @@ RegisterNetEvent('QBCore:Server:SetMetaData', function(meta, data)
     if Player then
         Player.Functions.SetMetaData(meta, data)
         TriggerClientEvent('hiype-cardelivery:client-receive-rank', src, data)
-        print("CAR DELIVERY XP SET TO " .. data)
     end
     TriggerClientEvent('hud:client:UpdateNeeds', src, Player.PlayerData.metadata['hunger'], Player.PlayerData.metadata['thirst'])
 end)
