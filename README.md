@@ -10,6 +10,7 @@ Pretty simple so far, further updates coming soon.
 ## Features
 
 - Payout based on vehicle condition (Engine, Body)
+- Very configurable
 - Cooldown between each taken job
 - Vehicles spawn either parked or driving around (Soon)
 - **NEW** Very basic rank system, nothing changes yet
