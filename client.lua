@@ -16,10 +16,14 @@ local table = nil
 local laptop = nil
 local npc = nil
 local rank = nil
+local copVehicle = nil
+local cop = nil
 
 local timeout = 0
 local tableModel = GetHashKey("prop_table_03b")
 local laptopModel = GetHashKey("prop_laptop_01a")
+local vehicleHash = GetHashKey("police4")
+local pedHash = GetHashKey("s_m_y_cop_01")
 
 RegisterNetEvent('hiype-cardelivery:client-receive-rank')
 AddEventHandler('hiype-cardelivery:client-receive-rank', function(rank_in)
@@ -137,6 +141,24 @@ BeginTextCommandSetBlipName("STRING")
 AddTextComponentString("Car delivery")
 EndTextCommandSetBlipName(blip)
 
+function SpawnCopCar()
+    RequestModel(vehicleHash)
+    while not HasModelLoaded(vehicleHash) do
+        Citizen.Wait(5)
+    end
+
+    if spawnDriving then
+        copVehicle = CreateVehicle(vehicleHash, drive_spawns[spawnLocation].copx, drive_spawns[spawnLocation].copy, drive_spawns[spawnLocation].copz, drive_spawns[spawnLocation].copHeading, true, true)
+    else
+        copVehicle = CreateVehicle(vehicleHash, parked_spawns[spawnLocation].copx, parked_spawns[spawnLocation].copy, parked_spawns[spawnLocation].copz, parked_spawns[spawnLocation].copHeading, true, true)
+    end
+
+    SetModelAsNoLongerNeeded(vehicleHash)
+    cop = CreatePed(4, pedHash, 0, 0, 0, 0, true, true)
+    GiveWeaponToPed(cop, "weapon_pistol", 999, false, true)
+    SetPedIntoVehicle(cop, copVehicle, -1)
+end
+
 function carWithAi()
     CreateThread(function()
         TriggerServerEvent("hiype_cardelivery:start_cooldown")
@@ -240,21 +262,34 @@ function carWithAi()
         SetBlipColour(destinationBlip, 5)
         SetBlipRouteColour(destinationBlip, 5)
 
-        local vehCoords = GetEntityCoords(vehicle)
+        player = PlayerPedId()
+        local playerCoords = GetEntityCoords(player)
         local countdown = choiceTimer * 1000
 
         if IsVehicleDriveable(vehicle, true) and GetVehicleEngineHealth(vehicle) > 50 then
             QBCore.Functions.Notify("In the next " .. choiceTimer .. " seconds, press U to keep the car and leave the job", "primary", 6000)
+            if math.random(1, chanceToSpawnCop) == 1 and copSpawn then
+                print("Local cops have been tipped off")
+                SpawnCopCar()
+            else
+                print("Cops were not tipped off")
+            end
         end
 
-        while (Vdist2(destinations[destinationLocation].x, destinations[destinationLocation].y, destinations[destinationLocation].z, vehCoords.x, vehCoords.y, vehCoords.z) > 15 or GetEntitySpeed(vehicle) > 0) and IsVehicleDriveable(vehicle, true) and GetVehicleEngineHealth(vehicle) > 50 and isWorking do
+        while (Vdist2(destinations[destinationLocation].x, destinations[destinationLocation].y, destinations[destinationLocation].z, playerCoords.x, playerCoords.y, playerCoords.z) > 15 or GetEntitySpeed(vehicle) > 0) and IsVehicleDriveable(vehicle, true) and GetVehicleEngineHealth(vehicle) > 50 and isWorking do
             Citizen.Wait(8)
-            vehCoords = GetEntityCoords(vehicle)
+            playerCoords = GetEntityCoords(player)
+            TaskVehicleDriveToCoord(cop, copVehicle, playerCoords.x, playerCoords.y, playerCoords.z, 30.0, 1.0, vehicleHash, SetDriveTaskDrivingStyle(ped, 786603), 1.0, true)
+            TaskCombatPed(cop, player, 0, 16)
+
             if abilityToKeepVehicle and countdown > choiceTimer then
                 if IsControlPressed( 0, 303) then
                     isWorking = false
+
+                    DeletePed(cop)
                     UpdateRank(rankPenalty)
                     
+                    QBCore.Functions.DeleteVehicle(copVehicle)
                     QBCore.Functions.Notify("Keep the car, job is canceled", "primary", 5000)
                     QBCore.Functions.Notify(tostring(rankPenalty) .. " XP subtracted from car delivery rank", "error", 5000)
                     Citizen.Wait(300)
@@ -267,6 +302,9 @@ function carWithAi()
         RemoveBlip(destinationBlip)
 
         if isWorking then
+            DeletePed(cop)
+            QBCore.Functions.DeleteVehicle(copVehicle)
+
             if GetVehicleEngineHealth(vehicle) > 50 and IsVehicleDriveable(vehicle, true) then
                 local extraPoints = GetVehicleEngineHealth(vehicle) + GetVehicleBodyHealth(vehicle)
                 TaskLeaveVehicle(PlayerPedId(), vehicle, 256)
@@ -350,6 +388,21 @@ function DrawText3D(x, y, z, text)
     ClearDrawOrigin()
 end
 
+-- Code taken from QBCore resources, QBCore.Functions.DrawText
+-- function DrawTxt(x, y, width, height, scale, r, g, b, a, text)
+--     SetTextFont(4)
+--     SetTextProportional(0)
+--     SetTextScale(scale, scale)
+--     SetTextColour(r, g, b, a)
+--     SetTextDropShadow(0, 0, 0, 0, 255)
+--     SetTextEdge(2, 0, 0, 0, 255)
+--     SetTextDropShadow()
+--     SetTextOutline()
+--     SetTextEntry('STRING2')
+--     AddTextComponentString(text)
+--     DrawText(x - width / 2, y - height / 2 + 0.005)
+-- end
+
 function UpdateRank(change)
     change = tonumber(change)
 
@@ -373,41 +426,3 @@ function UpdateRank(change)
         end
     end
 end
-
-function SetRank(change)
-    change = tonumber(change)
-
-    while true do
-        Citizen.Wait(500)
-
-        if rank ~= nil then
-            TriggerServerEvent('QBCore:Server:SetMetaData', 'cardeliveryxp', change)
-            rank = rank + change
-            break
-        else
-            TriggerServerEvent('hiype-cardelivery:GetMetaData')
-        end
-    end
-end
-
-RegisterCommand('cardelivery', function(source, args, rawCommand)
-    if args[1] == "rank" then
-        TriggerServerEvent('hiype-cardelivery:GetMetaData')
-        if rank ~= nil then
-            QBCore.Functions.Notify("Current rank " .. rank, "primary")
-        else
-            QBCore.Functions.Notify("Current rank nil", "primary")
-            TriggerServerEvent('hiype-cardelivery:GetMetaData')
-        end
-    else
-        if args[1] == "add" then
-                UpdateRank(args[2])
-        else
-            if args[1] == "set" then
-                SetRank(args[2])
-            else
-                QBCore.Functions.Notify("No such parameter", "error")
-            end 
-        end
-    end
-end, false)

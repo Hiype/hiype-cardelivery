@@ -12,7 +12,8 @@ Pretty simple so far, further updates coming soon.
 - Payout based on vehicle condition (Engine, Body)
 - Cooldown between each taken job
 - Vehicles spawn either parked or driving around (Soon)
-- Very basic rank system, nothing changes yet
+- **NEW** Very basic rank system, nothing changes yet
+- **NEW** Possible cop car chase when the car is stolen
 - **Planned some time**: Rank system with better cars spawning the more xp you get.
 
 ## Requirements
@@ -26,8 +27,13 @@ Pretty simple so far, further updates coming soon.
 2. Remove the "-main" part from folder name
 3. Add a line to your server.cfg file -> **ensure hiype-cardelivery**
 4. Add a line inside [qb] -> qb-core -> server -> player.lua
-   <br>**PlayerData.metadata['cardeliveryxp'] = PlayerData.metadata['cardeliveryxp'] or 0**
-   <br>An example image can be found at the bottom of this section
+
+```lua
+   PlayerData.metadata['cardeliveryxp'] = PlayerData.metadata['cardeliveryxp'] or 0
+```
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;An example image can be found at the bottom of this section.<br>
+
 5. If your server is running, remember to either restart your server or do **/refresh** and also **/start hiype-cardelivery**
 
 ![Enter this line](https://i.imgur.com/hae5hLd.png)
