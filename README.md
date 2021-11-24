@@ -7,6 +7,8 @@ Pretty simple so far, further updates coming soon.
 
 **Development still in progress**
 
+[![Preview video](https://i.imgur.com/gJTgDYv.jpg)](http://www.youtube.com/watch?v=MU_RDg1ahBc "FiveM QBCore Car Delivery FREE Script")
+
 ## Features
 
 - Payout based on vehicle condition (Engine, Body)
