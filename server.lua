@@ -1,3 +1,4 @@
+local QBCore = exports['qb-core']:GetCoreObject()
 local metaDataName = "cardeliveryxp"
 
 RegisterNetEvent("hiype_cardelivery:start_cooldown")

@@ -1,3 +1,5 @@
+local QBCore = exports['qb-core']:GetCoreObject()
+
 local isWorking = false
 local vehicle = nil
 local vehicleChoice = nil
