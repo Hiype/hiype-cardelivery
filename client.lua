@@ -133,13 +133,15 @@ AddEventHandler("hiype-cardelivery:update-cooldown", function(status)
 end)
 
 -- Adds a blip
-local blip = AddBlipForCoord(npcCoords.x, npcCoords.y, npcCoords.z)
-SetBlipSprite(blip, 524)
-SetBlipScale(blip, 0.8)
-SetBlipAsShortRange(blip, true)
-BeginTextCommandSetBlipName("STRING")
-AddTextComponentString("Car delivery")
-EndTextCommandSetBlipName(blip)
+if showblip then
+    local blip = AddBlipForCoord(npcCoords.x, npcCoords.y, npcCoords.z)
+    SetBlipSprite(blip, 524)
+    SetBlipScale(blip, 0.8)
+    SetBlipAsShortRange(blip, true)
+    BeginTextCommandSetBlipName("STRING")
+    AddTextComponentString("Car delivery")
+    EndTextCommandSetBlipName(blip)
+end
 
 function SpawnCopCar()
     RequestModel(vehicleHash)
