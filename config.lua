@@ -6,6 +6,7 @@ showAboveHead = true        -- Shows up above the npcs head, otherwise in HUD
 showNpc = true
 npcHeading = 205.9
 npcCoords = vector3(-79.25, -1392.6, 29.32)
+showblip = true
 
 -- The amount of xp subtracted for keeping the car or destroying it
 rankPenalty = -120
