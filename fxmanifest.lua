@@ -4,7 +4,10 @@ game 'gta5'
 author 'Hiype'
 version '1.0.0'
 
-client_script 'client.lua'
+client_scripts {
+    'lang.lua',
+    'client.lua',
+}
 server_script 'server.lua'
 
 shared_scripts { 

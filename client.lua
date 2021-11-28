@@ -20,6 +20,8 @@ local npc = nil
 local rank = nil
 local copVehicle = nil
 local cop = nil
+local goFindCar = nil
+local goFindParkedCar = nil
 
 local timeout = 0
 local tableModel = GetHashKey("prop_table_03b")
@@ -141,7 +143,7 @@ if showblip then
     SetBlipScale(blip, 0.8)
     SetBlipAsShortRange(blip, true)
     BeginTextCommandSetBlipName("STRING")
-    AddTextComponentString("Car delivery")
+    AddTextComponentString(blipName)
     EndTextCommandSetBlipName(blip)
 end
 
@@ -174,18 +176,19 @@ function carWithAi()
             Citizen.Wait(10)
         end
 
+
         -- Decides if the car should spawn parked or driving (Will be made soon)
         if math.random(0, 10) % 2 == 1 and driveAround then
             spawns = drive_spawns
             spawnDriving = true
-            print("Car will be driving around!")
+            print("Car will be driving around!") -- For debugging reasons
         else
             spawns = parked_spawns
-            print("Car will be parked!")
+            print("Car will be parked!") -- For debugging reasons
         end
 
         if spawns == nil or #spawns < 1 then
-            QBCore.Functions.Notify("No spawn locations in config file, quitting the job", 'error', 5000)
+            QBCore.Functions.Notify(NoSpawnLocationInConfigFile, 'error', 5000)
             isWorking = false
             return
         end
@@ -225,11 +228,14 @@ function carWithAi()
         SetBlipColour(vehBlip, 5)
         SetBlipRouteColour(vehBlip, 5)
 
+        goFindCar = text_GoFindCar(spawns, vehicleChoice, spawnLocation)
+        goFindParkedCar = text_GoFindParkedCar(spawns, vehicleChoice, spawnLocation)
+
         if notification and not showAboveHead then
             if spawnDriving then
-                QBCore.Functions.Notify("Go find a " .. vehicles[vehicleChoice].name .. " somewhere around " .. spawns[spawnLocation].name .. "!", "success", 3500)
+                QBCore.Functions.Notify(goFindCar, "success", 3500)
             else
-                QBCore.Functions.Notify("Go get a parked " .. vehicles[vehicleChoice].name .. " at " .. spawns[spawnLocation].name .. "!", "success", 3500)
+                QBCore.Functions.Notify(goFindParkedCar, "success", 3500)
             end
         end
 
@@ -250,9 +256,9 @@ function carWithAi()
             timeout = timeout + 0.5
             if notification and timeout < 200 and showAboveHead then
                 if spawnDriving then
-                    DrawText3D(npcCoords.x, npcCoords.y, zCoord, "Go find a ~g~" .. vehicles[vehicleChoice].name .. " ~w~somewhere around ~g~" .. spawns[spawnLocation].name .. "!")
+                    DrawText3D(npcCoords.x, npcCoords.y, zCoord, goFindCar)
                 else
-                    DrawText3D(npcCoords.x, npcCoords.y, zCoord, "Go get a parked ~g~" .. vehicles[vehicleChoice].name .. "~w~ at ~g~" .. spawns[spawnLocation].name .. "!")
+                    DrawText3D(npcCoords.x, npcCoords.y, zCoord, goFindParkedCar)
                 end
             end
         end
@@ -271,12 +277,12 @@ function carWithAi()
         local countdown = choiceTimer * 1000
 
         if IsVehicleDriveable(vehicle, true) and GetVehicleEngineHealth(vehicle) > 50 then
-            QBCore.Functions.Notify("In the next " .. choiceTimer .. " seconds, press U to keep the car and leave the job", "primary", 6000)
+            QBCore.Functions.Notify(KeepTheCar, "primary", 6000)
             if math.random(1, chanceToSpawnCop) == 1 and copSpawn then
-                print("Local cops have been tipped off")
+                print("Local cops have been tipped off") -- For debugging reasons
                 SpawnCopCar()
             else
-                print("Cops were not tipped off")
+                print("Cops were not tipped off") -- For debugging reasons
             end
         end
 
@@ -294,8 +300,8 @@ function carWithAi()
                     UpdateRank(rankPenalty)
                     
                     QBCore.Functions.DeleteVehicle(copVehicle)
-                    QBCore.Functions.Notify("Keep the car, job is canceled", "primary", 5000)
-                    QBCore.Functions.Notify(tostring(rankPenalty) .. " XP subtracted from car delivery rank", "error", 5000)
+                    QBCore.Functions.Notify(KeepTheCar_JobIsCancelled, "primary", 5000)
+                    QBCore.Functions.Notify(SubtractedXP, "error", 5000)
                     Citizen.Wait(300)
                 end
                 countdown = countdown - 8
@@ -321,8 +327,8 @@ function carWithAi()
                 QBCore.Functions.DeleteVehicle(vehicle)
             else
                 UpdateRank(rankPenalty)
-                QBCore.Functions.Notify("The vehicle was destroyed! Job has been canceled.", "error", 3000)
-                QBCore.Functions.Notify("120 XP subtracted from car delivery rank", "error", 5000)
+                QBCore.Functions.Notify(VehicleHasBeenDestroyed_JobIsCancelled, "error", 3000)
+                QBCore.Functions.Notify(SubtractedXP, "error", 5000)
                 Citizen.Wait(2000)
                 QBCore.Functions.DeleteVehicle(vehicle)
             end
@@ -343,7 +349,7 @@ CreateThread(function()
             if IsControlPressed(0, 38) then
                 if isWorking then
                     isWorking = false
-                    QBCore.Functions.Notify("Car delivery job has been quit", "error", 3000)
+                    QBCore.Functions.Notify(JobQuit, "error", 3000)
                     QBCore.Functions.DeleteVehicle(vehicle)
                     DeletePed(ped)
                     timeout = 200
@@ -351,7 +357,7 @@ CreateThread(function()
                 else 
                     if not cooldown then
                         isWorking = true
-                        QBCore.Functions.Notify("Car delivery job started", "success", 3000)
+                        QBCore.Functions.Notify(JobStarted, "success", 3000)
                         carWithAi()
                         Citizen.Wait(500)
                     else
@@ -363,9 +369,9 @@ CreateThread(function()
             else
                 if not notifSent then
                     if not isWorking then
-                        QBCore.Functions.Notify("Press E to start a job", "primary", 3000)
+                        QBCore.Functions.Notify(StartJob, "primary", 3000)
                     else
-                        QBCore.Functions.Notify("Press E to quit the job", "primary", 3000)
+                        QBCore.Functions.Notify(QuitJob, "primary", 3000)
                     end
                     notifSent = true
                 end
