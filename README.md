@@ -16,9 +16,9 @@ Pretty simple so far, further updates coming soon.
 - Very configurable
 - Cooldown between each taken job
 - Vehicles spawn either parked or driving around (Soon)
-- **NEW** Very basic rank system, nothing changes yet
-- **NEW** Possible cop car chase when the car is stolen
-- **Planned some time**: Rank system with better cars spawning the more xp you get.
+- Very basic rank system, nothing changes yet
+- Possible cop car chase when the car is stolen
+- **NEW** Rank system with better cars spawning the more xp you get
 
 ## Requirements
 
