@@ -11,10 +11,10 @@ QuitJob = "Press E to quit the job"
 KeepTheCar = "In the next " .. choiceTimer .. " seconds, press U to keep the car and leave the job"
 SubtractedXP = tostring(rankPenalty) .. " XP subtracted from car delivery rank"
 
-function text_GoFindCar(spawns, vehicleChoice, spawnLocation)
-    return "Go find a " .. vehicles[vehicleChoice].name .. " somewhere around " .. spawns[spawnLocation].name .. "!"
+function text_GoFindCar(spawns, level, vehicleChoice, spawnLocation)
+    return "Go find a " .. vehicles[level][vehicleChoice].name .. " somewhere around " .. spawns[spawnLocation].name .. "!"
 end
 
-function text_GoFindParkedCar(spawns, vehicleChoice, spawnLocation)
-    return "Go find a parked " .. vehicles[vehicleChoice].name .. " at " .. spawns[spawnLocation].name .. "!"
+function text_GoFindParkedCar(spawns, level, vehicleChoice, spawnLocation)
+    return "Go find a parked " .. vehicles[level][vehicleChoice].name .. " at " .. spawns[spawnLocation].name .. "!"
 end

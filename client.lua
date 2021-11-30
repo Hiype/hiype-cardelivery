@@ -24,6 +24,7 @@ local goFindCar = nil
 local goFindParkedCar = nil
 
 local timeout = 0
+local level = 1
 local tableModel = GetHashKey("prop_table_03b")
 local laptopModel = GetHashKey("prop_laptop_01a")
 local vehicleHash = GetHashKey("police4")
@@ -74,6 +75,7 @@ AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
                 TaskStartScenarioInPlace(npc, "WORLD_HUMAN_DRUG_DEALER", 0, true)
             end
             startEntitySpawned = true
+            UpdateLevel()
         end)
     end
 end)
@@ -127,6 +129,7 @@ AddEventHandler('onResourceStart', function(resource)
                 TaskStartScenarioInPlace(npc, "WORLD_HUMAN_DRUG_DEALER", 0, true)
             end
             startEntitySpawned = true
+            UpdateLevel()
         end)
     end
 end)
@@ -168,14 +171,14 @@ end
 function carWithAi()
     CreateThread(function()
         TriggerServerEvent("hiype_cardelivery:start_cooldown")
-        vehicleChoice = math.random(1, #vehicles)
-        local model = GetHashKey(vehicles[vehicleChoice].model)
+        TriggerServerEvent('hiype-cardelivery:GetMetaData')
+        vehicleChoice = math.random(1, #vehicles[level])
+        local model = GetHashKey(vehicles[level][vehicleChoice].model)
 
         RequestModel(model)
         while not HasModelLoaded(model) do
             Citizen.Wait(10)
         end
-
 
         -- Decides if the car should spawn parked or driving (Will be made soon)
         if math.random(0, 10) % 2 == 1 and driveAround then
@@ -228,8 +231,9 @@ function carWithAi()
         SetBlipColour(vehBlip, 5)
         SetBlipRouteColour(vehBlip, 5)
 
-        goFindCar = text_GoFindCar(spawns, vehicleChoice, spawnLocation)
-        goFindParkedCar = text_GoFindParkedCar(spawns, vehicleChoice, spawnLocation)
+        print("LEVEL - " .. tostring(level))
+        goFindCar = text_GoFindCar(spawns, level, vehicleChoice, spawnLocation)
+        goFindParkedCar = text_GoFindParkedCar(spawns, level, vehicleChoice, spawnLocation)
 
         if notification and not showAboveHead then
             if spawnDriving then
@@ -319,11 +323,11 @@ function carWithAi()
                 local extraPoints = GetVehicleEngineHealth(vehicle) + GetVehicleBodyHealth(vehicle)
                 TaskLeaveVehicle(PlayerPedId(), vehicle, 256)
                 Citizen.Wait(2000)
-                TriggerServerEvent("hiype-cardelivery:addMoney", math.random(destinations[destinationLocation].from, destinations[destinationLocation].to) + (extraPoints / 2.0))
+                TriggerServerEvent("hiype-cardelivery:addMoney", math.random(destinations[destinationLocation].from, destinations[destinationLocation].to) + (extraPoints / 2.0) + level * 1000)
 
                 extraPoints = math.floor(extraPoints / 10.0)
-                UpdateRank(100 + extraPoints)
-                QBCore.Functions.Notify("Added " .. (100 + extraPoints) .. " xp to car delivery rank", "success", 5000)
+                UpdateRank(xpGain + extraPoints)
+                QBCore.Functions.Notify("Added " .. (xpGain + extraPoints) .. " xp to car delivery rank", "success", 5000)
                 QBCore.Functions.DeleteVehicle(vehicle)
             else
                 UpdateRank(rankPenalty)
@@ -339,9 +343,11 @@ end
 
 CreateThread(function()
     local notifSent = false
+    TriggerServerEvent('hiype-cardelivery:GetMetaData')
 
     while true do
         Citizen.Wait(10)
+
         local pCoords = GetEntityCoords(PlayerPedId())
 
         if Vdist2(npcCoords, pCoords) < startSize and isLoggedIn then
@@ -430,9 +436,24 @@ function UpdateRank(change)
         if rank ~= nil then
             TriggerServerEvent('QBCore:Server:SetMetaData', 'cardeliveryxp', rank + change)
             rank = rank + change
+            UpdateLevel()
             break
         else
             TriggerServerEvent('hiype-cardelivery:GetMetaData')
         end
     end
+end
+
+function UpdateLevel()
+    for i=1, #levelXpGoal, 1 do
+        print("LOOP" .. tostring(i))
+        if rank >= levelXpGoal[i] then
+            print("INCREASING LEVEL, CURRENT: " .. tostring(level) .. " TO: " .. tostring(i))
+            print("RANK: " .. tostring(rank))
+            level = i + 1
+        else
+            print("RANK: " .. tostring(rank) .. " IS NOT BIGGER THAN LEVEL " .. tostring(i) .. " : " .. tostring(levelXpGoal[i]))
+        end
+    end
+    print("LEVEL UPDATED TO " .. tostring(level))
 end

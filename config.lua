@@ -10,6 +10,7 @@ showblip = true
 
 -- The amount of xp subtracted for keeping the car or destroying it
 rankPenalty = -120
+xpGain = 100
 
 -- The size of the circle where player enters to start the job
 startSize = 20
@@ -37,13 +38,33 @@ pedModel = GetHashKey("g_m_y_lost_01")
 copSpawn = true
 chanceToSpawnCop = 5        -- The chance that the cop spawns, for example 2 means 1/2 chance, 5 would be 1/5 chance and so on
 
+-- Xp you need to reach that level, you can add more
+levelXpGoal = {
+    1500, -- Level 2
+    2500, -- Level 3
+    3000, -- Level 4
+}
+
 -- You should replace these custom vehicles if your server does not have them
+-- You can add more levels
 vehicles = {
-    {model="rs7", name="Audi RS7"},
-    {model="f82", name="BMW M5"},
-    {model="m6f13", name="BMW M6 F13"},
-    {model="bmwe39", name="BMW E39"},
-    {model="subwrx", name="Subaru Impreza WRX STI 2004"},
+    { -- Level 1
+        {model="zion", name="Ubermacht Zion"},
+        {model="kanjo", name="Ubermacht Sentinel XS"},
+    },
+    { -- Level 2
+        {model="bmwe39", name="BMW E39"},
+        {model="subwrx", name="Subaru Impreza WRX STI 2004"},
+    },
+    { -- Level 3
+        {model="rs7", name="Audi RS7"},
+        {model="f82", name="BMW M5"},
+        {model="m6f13", name="BMW M6 F13"},
+    },
+    { -- Level 4
+        {model="sc18", name="Lamborghini SC18"},
+        {model="senna", name="McLaren Senna"}
+    },
 }
 
 -- Locations where parked vehicles spawn and cop cars

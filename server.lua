@@ -61,17 +61,20 @@ end)
 RegisterNetEvent('hiype-cardelivery:SetMetaData', function(meta, data)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
-    if meta == 'hunger' or meta == 'thirst' then
-        if data > 100 then
-            data = 100
-        end
-    end
     if Player then
         Player.Functions.SetMetaData(meta, data)
         TriggerClientEvent('hiype-cardelivery:client-receive-rank', src, data)
     end
-    TriggerClientEvent('hud:client:UpdateNeeds', src, Player.PlayerData.metadata['hunger'], Player.PlayerData.metadata['thirst'])
 end)
+
+function SetMetaData(meta, data)
+    local src = source
+    local Player = QBCore.Functions.GetPlayer(src)
+    if Player then
+        Player.Functions.SetMetaData(meta, data)
+        TriggerClientEvent('hiype-cardelivery:client-receive-rank', src, data)
+    end
+end
 
 function UpdateRank(change, metadata)
     change = tonumber(change)
@@ -80,7 +83,7 @@ function UpdateRank(change, metadata)
         change = metadata * -1
     end
 
-    TriggerServerEvent('hiype-cardelivery:SetMetaData', metaDataName, metadata + change)
+    SetMetaData(metaDataName, metadata + change)
 end
 
 function SetRank(change)
@@ -90,7 +93,7 @@ function SetRank(change)
         change = 0 
     end
 
-    TriggerServerEvent('hiype-cardelivery:SetMetaData', metaDataName, change)
+    SetMetaData(metaDataName, change)
 end
 
 QBCore.Commands.Add(metaDataName, 'Check/Edit car delivery rank', { { name = 'option', help = 'Option type (rank, add, set)' }, { name = 'number', help = 'Set or add rank by (type in anoythin for rank option)'} }, true, function(source, args)
