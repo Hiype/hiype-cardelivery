@@ -12,13 +12,15 @@ Pretty simple so far, further updates coming soon.
 
 ## Features
 
-- Payout based on vehicle condition (Engine, Body)
+- Payout based on vehicle condition (Engine, Body, Level)
 - Very configurable
 - Cooldown between each taken job
 - Vehicles spawn either parked or driving around (Soon)
 - Very basic rank system, nothing changes yet
 - Possible cop car chase when the car is stolen
 - **NEW** Rank system with better cars spawning the more xp you get
+- **NEW** Chat commands for checking current level by /deliveryxp
+- **NEW** Admin rank editing options with /cardeliveryxp (option) (number)
 
 ## Requirements
 
@@ -55,6 +57,10 @@ Once there, go next to the NPC and press E key on your keyboard to start the job
 Follow the objective, use any lockpick to open the car and hotwire if necessary.<br>
 Drive to the destination. Beware, if the car is destroyed, job will **fail**!<br>
 Once you arrive at the destination, stop the car inside the objective blip on mini map. Job will finish and you will get paid depending on distance driven and condition of the car.
+
+## Possible issues
+
+- Billion dollar payout? Multiple reports, but unable to recreate the problem, if anyone encounters this please add more information on how to recreate this. :)
 
 ## Support
 

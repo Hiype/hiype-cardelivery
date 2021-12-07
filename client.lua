@@ -38,12 +38,13 @@ end)
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded')
 AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
     TriggerServerEvent("qb-clothes:loadPlayerSkin")
-    TriggerServerEvent('hiype-cardelivery:GetMetaData')
     isLoggedIn = true
     player = PlayerPedId()
 
     if not startEntitySpawned then
         CreateThread(function()
+            TriggerServerEvent('hiype-cardelivery:GetMetaData')
+            Citizen.Wait(100)
             if not showNpc then
                 RequestModel(tableModel)
                 while not HasModelLoaded(tableModel) do
@@ -94,10 +95,10 @@ AddEventHandler('onResourceStart', function(resource)
         isLoggedIn = true
     end
 
-    TriggerServerEvent('hiype-cardelivery:GetMetaData')
-
     if not startEntitySpawned then
         CreateThread(function()
+            TriggerServerEvent('hiype-cardelivery:GetMetaData')
+            Citizen.Wait(100)
             if not showNpc then
                 RequestModel(tableModel)
                 while not HasModelLoaded(tableModel) do
@@ -129,6 +130,7 @@ AddEventHandler('onResourceStart', function(resource)
                 TaskStartScenarioInPlace(npc, "WORLD_HUMAN_DRUG_DEALER", 0, true)
             end
             startEntitySpawned = true
+            
             UpdateLevel()
         end)
     end
@@ -176,8 +178,16 @@ function carWithAi()
         local model = GetHashKey(vehicles[level][vehicleChoice].model)
 
         RequestModel(model)
+        local modelLoadingTimeout = 5000
         while not HasModelLoaded(model) do
             Citizen.Wait(10)
+            modelLoadingTimeout = modelLoadingTimeout - 10
+            if modelLoadingTimeout <= 0 then
+                QBCore.Functions.Notify(CarModelLoadingTimeout, "error", 6000)
+                isWorking = false
+                print("ERROR: MODEL LOADING TIMED OUT")
+                return
+            end
         end
 
         -- Decides if the car should spawn parked or driving (Will be made soon)
@@ -231,7 +241,6 @@ function carWithAi()
         SetBlipColour(vehBlip, 5)
         SetBlipRouteColour(vehBlip, 5)
 
-        print("LEVEL - " .. tostring(level))
         goFindCar = text_GoFindCar(spawns, level, vehicleChoice, spawnLocation)
         goFindParkedCar = text_GoFindParkedCar(spawns, level, vehicleChoice, spawnLocation)
 
@@ -343,7 +352,6 @@ end
 
 CreateThread(function()
     local notifSent = false
-    TriggerServerEvent('hiype-cardelivery:GetMetaData')
 
     while true do
         Citizen.Wait(10)
@@ -404,21 +412,6 @@ function DrawText3D(x, y, z, text)
     ClearDrawOrigin()
 end
 
--- Code taken from QBCore resources, QBCore.Functions.DrawText
--- function DrawTxt(x, y, width, height, scale, r, g, b, a, text)
---     SetTextFont(4)
---     SetTextProportional(0)
---     SetTextScale(scale, scale)
---     SetTextColour(r, g, b, a)
---     SetTextDropShadow(0, 0, 0, 0, 255)
---     SetTextEdge(2, 0, 0, 0, 255)
---     SetTextDropShadow()
---     SetTextOutline()
---     SetTextEntry('STRING2')
---     AddTextComponentString(text)
---     DrawText(x - width / 2, y - height / 2 + 0.005)
--- end
-
 function UpdateRank(change)
     change = tonumber(change)
 
@@ -446,14 +439,8 @@ end
 
 function UpdateLevel()
     for i=1, #levelXpGoal, 1 do
-        print("LOOP" .. tostring(i))
         if rank >= levelXpGoal[i] then
-            print("INCREASING LEVEL, CURRENT: " .. tostring(level) .. " TO: " .. tostring(i))
-            print("RANK: " .. tostring(rank))
             level = i + 1
-        else
-            print("RANK: " .. tostring(rank) .. " IS NOT BIGGER THAN LEVEL " .. tostring(i) .. " : " .. tostring(levelXpGoal[i]))
         end
     end
-    print("LEVEL UPDATED TO " .. tostring(level))
 end

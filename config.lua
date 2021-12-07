@@ -50,7 +50,8 @@ levelXpGoal = {
 vehicles = {
     { -- Level 1
         {model="zion", name="Ubermacht Zion"},
-        {model="kanjo", name="Ubermacht Sentinel XS"},
+        {model="tailgater", name="Obey Tailgater"},
+        {model="lolcar", name="This brakes"},
     },
     { -- Level 2
         {model="bmwe39", name="BMW E39"},
