@@ -22,6 +22,10 @@ text_noSuchParameter = "No such parameter"
 text_notEveryArgumentWasEntered = "Not every argument was entered"
 text_getXpCommand = "deliveryxp"
 text_getXpDescription = "Shows your car delivery xp"
+text_added = "Added"
+text_xpToCarDeliveryRank = "xp to car delivery rank"
+text_cooldown = "Cooldown"
+text_secondsLeft = "seconds left"
 
 
 KeepTheCar = "In the next " .. choiceTimer .. " seconds, press U to keep the car and leave the job"

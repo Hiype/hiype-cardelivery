@@ -25,7 +25,6 @@ Pretty simple so far, further updates coming soon.
 ## Requirements
 
 - [QbCore framework](https://github.com/qbcore-framework)
-- Could be more soon...
 
 ## Setup
 

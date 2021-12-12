@@ -130,7 +130,6 @@ AddEventHandler('onResourceStart', function(resource)
                 TaskStartScenarioInPlace(npc, "WORLD_HUMAN_DRUG_DEALER", 0, true)
             end
             startEntitySpawned = true
-            
             UpdateLevel()
         end)
     end
@@ -336,7 +335,7 @@ function carWithAi()
 
                 extraPoints = math.floor(extraPoints / 10.0)
                 UpdateRank(xpGain + extraPoints)
-                QBCore.Functions.Notify("Added " .. (xpGain + extraPoints) .. " xp to car delivery rank", "success", 5000)
+                QBCore.Functions.Notify(text_added  .. " " .. (xpGain + extraPoints) .. " " .. text_xpToCarDeliveryRank, "success", 5000)
                 QBCore.Functions.DeleteVehicle(vehicle)
             else
                 UpdateRank(rankPenalty)

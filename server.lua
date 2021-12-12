@@ -33,7 +33,7 @@ end)
 
 RegisterNetEvent("hiype-cardelivery:request-cooldown-time")
 AddEventHandler("hiype-cardelivery:request-cooldown-time", function()
-	TriggerClientEvent("QBCore:Notify", source, ("Cooldown - " .. secondsLeft .. " seconds left"), "primary", 3000)
+	TriggerClientEvent("QBCore:Notify", source, (text_cooldown .. " - " .. secondsLeft .. " " .. text_secondsLeft), "primary", 3000)
 end)
 
 RegisterNetEvent("hiype-cardelivery:addMoney")
