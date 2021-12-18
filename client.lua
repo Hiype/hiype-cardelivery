@@ -331,7 +331,7 @@ function carWithAi()
                 local extraPoints = GetVehicleEngineHealth(vehicle) + GetVehicleBodyHealth(vehicle)
                 TaskLeaveVehicle(PlayerPedId(), vehicle, 256)
                 Citizen.Wait(2000)
-                TriggerServerEvent("hiype-cardelivery:addMoney", math.random(destinations[destinationLocation].from, destinations[destinationLocation].to) + (extraPoints / 2.0) + level * 1000)
+                TriggerServerEvent("hiype-cardelivery:addMoney", math.floor(math.random(destinations[destinationLocation].from, destinations[destinationLocation].to) + (extraPoints / 2.0) + level * 1000))
 
                 extraPoints = math.floor(extraPoints / 10.0)
                 UpdateRank(xpGain + extraPoints)
