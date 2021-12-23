@@ -57,10 +57,6 @@ Follow the objective, use any lockpick to open the car and hotwire if necessary.
 Drive to the destination. Beware, if the car is destroyed, job will **fail**!<br>
 Once you arrive at the destination, stop the car inside the objective blip on mini map. Job will finish and you will get paid depending on distance driven and condition of the car.
 
-## Possible issues
-
-- Billion dollar payout? Multiple reports, but unable to recreate the problem, if anyone encounters this please add more information on how to recreate this. :)
-
 ## Support
 
 If you wish to support me in any way, you can do so through this link -> [Streamelements donos](https://streamelements.com/hiype/tip)<br>

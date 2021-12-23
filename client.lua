@@ -184,7 +184,8 @@ function carWithAi()
             if modelLoadingTimeout <= 0 then
                 QBCore.Functions.Notify(CarModelLoadingTimeout, "error", 6000)
                 isWorking = false
-                print("ERROR: MODEL LOADING TIMED OUT")
+                print("ERROR: MODEL LOADING TIMED OUT FOR")
+                print(vehicles[level][vehicleChoice].model)
                 return
             end
         end

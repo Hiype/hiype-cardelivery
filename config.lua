@@ -51,7 +51,6 @@ vehicles = {
     { -- Level 1
         {model="zion", name="Ubermacht Zion"},
         {model="tailgater", name="Obey Tailgater"},
-        {model="lolcar", name="This brakes"},
     },
     { -- Level 2
         {model="bmwe39", name="BMW E39"},
@@ -70,8 +69,8 @@ vehicles = {
 
 -- Locations where parked vehicles spawn and cop cars
 parked_spawns = {
-    {name="Rancho", heading=302.58, x=548.79, y=-1930.65, z=24.25, copHeading=307.94, copx=418.47, copy=-1809.2, copz=28.0},
-    {name="Cypress flats", heading=179.45, x=998.85, y=-1944.38, z=30.47, copHeading=332.55, copx=741.46, copy=-1766.14, copz=28.29},
+    {name="Cypress flats", x=728.32, y=-1897.23, z=28.99, heading=264.75, copHeading=332.55, copx=741.46, copy=-1766.14, copz=28.29},
+    {name="Elysian Island", x=600.91, y=-2675.6, z=5.89, heading=188.38, copx=656.72, copy=-2791.2, copz=5.87, copHeading=289.29},
     {name="La mesa inside a garage", heading=263.13, x=946.4, y=-1697.76, z=29.52, copHeading=332.55, copx=741.46, copy=-1766.14, copz=28.29},
 }
 
