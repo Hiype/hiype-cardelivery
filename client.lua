@@ -76,7 +76,11 @@ AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
                 TaskStartScenarioInPlace(npc, "WORLD_HUMAN_DRUG_DEALER", 0, true)
             end
             startEntitySpawned = true
-            UpdateLevel()
+            for i=1, #levelXpGoal, 1 do
+                if rank >= levelXpGoal[i] then
+                    level = i + 1
+                end
+            end
         end)
     end
 end)
@@ -130,7 +134,11 @@ AddEventHandler('onResourceStart', function(resource)
                 TaskStartScenarioInPlace(npc, "WORLD_HUMAN_DRUG_DEALER", 0, true)
             end
             startEntitySpawned = true
-            UpdateLevel()
+            for i=1, #levelXpGoal, 1 do
+                if rank >= levelXpGoal[i] then
+                    level = i + 1
+                end
+            end
         end)
     end
 end)
@@ -430,6 +438,7 @@ function UpdateRank(change)
             TriggerServerEvent('QBCore:Server:SetMetaData', 'cardeliveryxp', rank + change)
             rank = rank + change
             UpdateLevel()
+            Citizen.Wait(2000)
             break
         else
             TriggerServerEvent('hiype-cardelivery:GetMetaData')
@@ -438,9 +447,19 @@ function UpdateRank(change)
 end
 
 function UpdateLevel()
+    local currentLevel = level
     for i=1, #levelXpGoal, 1 do
         if rank >= levelXpGoal[i] then
             level = i + 1
+        end
+    end
+    if currentLevel and level > currentLevel then
+        QBCore.Functions.Notify(text_level .. " " .. tostring(level), "success", 5000)
+        QBCore.Functions.Notify(text_levelUp .. "!", "success", 5000)
+    else
+        if currentLevel and level < currentLevel then
+            QBCore.Functions.Notify(text_level .. " " .. tostring(level), "error", 5000)
+            QBCore.Functions.Notify(text_levelLost .. "!", "error", 5000)
         end
     end
 end
