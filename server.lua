@@ -157,7 +157,6 @@ function RefreshCommands(source)
 		end
 		TriggerClientEvent("chat:addSuggestions", tonumber(source), suggestions)
 	end
-
 end
 
 RefreshCommands(source)

@@ -34,9 +34,13 @@ payInCash = true
 -- Change the string to have a different npc model
 pedModel = GetHashKey("g_m_y_lost_01")
 
--- The possibility for a cop car to spawn that chases after player
+-- The possibility for a local cop car to spawn that chases after player
 copSpawn = true
-chanceToSpawnCop = 5        -- The chance that the cop spawns, for example 2 means 1/2 chance, 5 would be 1/5 chance and so on
+chanceToSpawnCop = 1        -- The chance that the cop spawns, for example 2 means 1/2 chance, 5 would be 1/5 chance and so on
+
+-- Sends a notification to player cops
+sendPoliceNotif = true
+policeNotifChance = 2       -- 1 = 1/1 all the time, 2 = 1/2 50% of the time, etc.
 
 -- Xp you need to reach that level, you can add more
 levelXpGoal = {

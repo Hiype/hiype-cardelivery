@@ -28,7 +28,7 @@ local level = 1
 local tableModel = GetHashKey("prop_table_03b")
 local laptopModel = GetHashKey("prop_laptop_01a")
 local vehicleHash = GetHashKey("police4")
-local pedHash = GetHashKey("s_m_y_cop_01")
+local pedHash = GetHashKey("csb_cop")
 
 RegisterNetEvent('hiype-cardelivery:client-receive-rank')
 AddEventHandler('hiype-cardelivery:client-receive-rank', function(rank_in)
@@ -172,7 +172,13 @@ function SpawnCopCar()
     end
 
     SetModelAsNoLongerNeeded(vehicleHash)
-    cop = CreatePed(4, pedHash, 0, 0, 0, 0, true, true)
+    RequestModel(pedHash)
+    while not HasModelLoaded(pedHash) do
+        Citizen.Wait(5)
+    end
+
+    local veh_coords = GetEntityCoords(copVehicle)
+    cop = CreatePed(4, pedHash, veh_coords.x, veh_coords.y, veh_coords.z, 0, true, true)
     GiveWeaponToPed(cop, "weapon_pistol", 999, false, true)
     SetPedIntoVehicle(cop, copVehicle, -1)
 end
@@ -284,6 +290,14 @@ function carWithAi()
             end
         end
 
+        if sendPoliceNotif then
+            if math.random(1, policeNotifChance) == 1 then
+                TriggerServerEvent('police:server:policeAlert', text_vehicleStolen(vehicleChoice, level))
+            else
+                QBCore.Functions.Notify('Police not notified', 'success')
+            end
+        end
+
         SetBlipRoute(vehBlip, false)
         RemoveBlip(vehBlip)
         
@@ -292,6 +306,9 @@ function carWithAi()
         SetBlipRoute(destinationBlip, true)
         SetBlipColour(destinationBlip, 5)
         SetBlipRouteColour(destinationBlip, 5)
+
+        print("Drive distance is ")
+        print(CalculateTravelDistanceBetweenPoints(spawns[spawnLocation].x, spawns[spawnLocation].y, spawns[spawnLocation].z, destinations[destinationLocation].x, destinations[destinationLocation].y, destinations[destinationLocation].z))
 
         player = PlayerPedId()
         local playerCoords = GetEntityCoords(player)
@@ -316,7 +333,6 @@ function carWithAi()
             if abilityToKeepVehicle and countdown > choiceTimer then
                 if IsControlPressed( 0, 303) then
                     isWorking = false
-
                     DeletePed(cop)
                     UpdateRank(rankPenalty)
                     
@@ -340,7 +356,9 @@ function carWithAi()
                 local extraPoints = GetVehicleEngineHealth(vehicle) + GetVehicleBodyHealth(vehicle)
                 TaskLeaveVehicle(PlayerPedId(), vehicle, 256)
                 Citizen.Wait(2000)
-                TriggerServerEvent("hiype-cardelivery:addMoney", math.floor(math.random(destinations[destinationLocation].from, destinations[destinationLocation].to) + (extraPoints / 2.0) + level * 1000))
+                print("Drive distance was ")
+                print(CalculateTravelDistanceBetweenPoints(spawns[spawnLocation].x, spawns[spawnLocation].y, spawns[spawnLocation].z, destinations[destinationLocation].x, destinations[destinationLocation].y, destinations[destinationLocation].z))
+                TriggerServerEvent("hiype-cardelivery:addMoney", math.floor(CalculateTravelDistanceBetweenPoints(spawns[spawnLocation].x, spawns[spawnLocation].y, spawns[spawnLocation].z, destinations[destinationLocation].x, destinations[destinationLocation].y, destinations[destinationLocation].z) / 2.0 + (extraPoints / 2.0) + level * 1000))
 
                 extraPoints = math.floor(extraPoints / 10.0)
                 UpdateRank(xpGain + extraPoints)
@@ -463,3 +481,22 @@ function UpdateLevel()
         end
     end
 end
+
+RegisterNetEvent('getdistance')
+AddEventHandler('getdistance', function(data)
+    local distCoords = GetEntityCoords(PlayerPedId())
+
+    if GetFirstBlipInfoId( 8 ) ~= 0 then
+	
+        local waypointBlip = GetFirstBlipInfoId( 8 ) 
+        local coord = Citizen.InvokeNative( 0xFA7C7F0AADF25D09, waypointBlip, Citizen.ResultAsVector( ) ) 
+        local x  = coord.x
+        local y = coord.y
+        local z = coord.z
+        
+        QBCore.Functions.Notify(CalculateTravelDistanceBetweenPoints(distCoords.x, distCoords.y, distCoords.z, x, y, z), "success", 5000)
+    else
+        QBCore.Functions.Notify("NO waypoint", "error")
+        return
+    end
+end)

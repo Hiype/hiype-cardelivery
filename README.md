@@ -20,7 +20,7 @@ Pretty simple so far, further updates coming soon.
 - Rank system with better cars spawning the more xp you get
 - Chat commands for checking current level by /deliveryxp
 - Admin rank editing options with /cardeliveryxp (option) (number)
-- **NEW** Level up or level down notifications
+- Level up and level down notifications
 
 ## Requirements
 

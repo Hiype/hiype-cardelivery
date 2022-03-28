@@ -40,3 +40,7 @@ end
 function text_GoFindParkedCar(spawns, level, vehicleChoice, spawnLocation)
     return "Go find a parked ~g~" .. vehicles[level][vehicleChoice].name .. "~w~ at ~g~" .. spawns[spawnLocation].name .. "~w~!"
 end
+
+function text_vehicleStolen(vehicleChoice, level)
+    return vehicles[level][vehicleChoice].name .. " robbery in progress"
+end
