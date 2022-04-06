@@ -74,6 +74,50 @@ AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
                 SetEntityInvincible(npc, true)
                 SetBlockingOfNonTemporaryEvents(npc, true)
                 TaskStartScenarioInPlace(npc, "WORLD_HUMAN_DRUG_DEALER", 0, true)
+                if useTarget then
+                    exports['qb-target']:AddTargetEntity(npc, {
+                        options = {
+                            {
+                                type = "client",
+                                icon = "fa-solid fa-car",
+                                label = "Start car delivery job",
+                                action = function(entity)
+                                    if isWorking then
+                                        QBCore.Functions.Notify(JobInProgress, "error", 3000)
+                                    else 
+                                        if not cooldown then
+                                            isWorking = true
+                                            QBCore.Functions.Notify(JobStarted, "success", 3000)
+                                            carWithAi()
+                                            Citizen.Wait(500)
+                                        else
+                                            TriggerServerEvent("hiype-cardelivery:request-cooldown-time")
+                                            Citizen.Wait(500)
+                                        end
+                                    end
+                                end
+                            },
+                            {
+                                type = "client",
+                                icon = "fa-solid fa-x",
+                                label = "Quit car delivery job",
+                                action = function(entity)
+                                    if isWorking then
+                                        isWorking = false
+                                        QBCore.Functions.Notify(JobQuit, "primary", 3000)
+                                        QBCore.Functions.DeleteVehicle(vehicle)
+                                        DeletePed(ped)
+                                        timeout = 200
+                                        Citizen.Wait(500)
+                                    else 
+                                        QBCore.Functions.Notify(JobNotStarted, "error", 3000)
+                                    end
+                                end
+                            },
+                        },
+                        distance = 3.0
+                    })
+                end
             end
             startEntitySpawned = true
             for i=1, #levelXpGoal, 1 do
@@ -132,6 +176,50 @@ AddEventHandler('onResourceStart', function(resource)
                 SetEntityInvincible(npc, true)
                 SetBlockingOfNonTemporaryEvents(npc, true)
                 TaskStartScenarioInPlace(npc, "WORLD_HUMAN_DRUG_DEALER", 0, true)
+                if useTarget then
+                    exports['qb-target']:AddTargetEntity(npc, {
+                        options = {
+                            {
+                                type = "client",
+                                icon = "fa-solid fa-car",
+                                label = "Start car delivery job",
+                                action = function(entity)
+                                    if isWorking then
+                                        QBCore.Functions.Notify(JobInProgress, "error", 3000)
+                                    else 
+                                        if not cooldown then
+                                            isWorking = true
+                                            QBCore.Functions.Notify(JobStarted, "success", 3000)
+                                            carWithAi()
+                                            Citizen.Wait(500)
+                                        else
+                                            TriggerServerEvent("hiype-cardelivery:request-cooldown-time")
+                                            Citizen.Wait(500)
+                                        end
+                                    end
+                                end
+                            },
+                            {
+                                type = "client",
+                                icon = "fa-solid fa-x",
+                                label = "Quit car delivery job",
+                                action = function(entity)
+                                    if isWorking then
+                                        isWorking = false
+                                        QBCore.Functions.Notify(JobQuit, "primary", 3000)
+                                        QBCore.Functions.DeleteVehicle(vehicle)
+                                        DeletePed(ped)
+                                        timeout = 200
+                                        Citizen.Wait(500)
+                                    else 
+                                        QBCore.Functions.Notify(JobNotStarted, "error", 3000)
+                                    end
+                                end
+                            },
+                        },
+                        distance = 3.0
+                    })
+                end
             end
             startEntitySpawned = true
             for i=1, #levelXpGoal, 1 do
@@ -405,9 +493,8 @@ CreateThread(function()
                         Citizen.Wait(500)
                     end
                 end
-
             else
-                if not notifSent then
+                if not notifSent and not useTarget then
                     if not isWorking then
                         QBCore.Functions.Notify(StartJob, "primary", 3000)
                     else

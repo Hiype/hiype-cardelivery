@@ -2,6 +2,9 @@
 notification = true
 showAboveHead = true        -- Shows up above the npcs head, otherwise in HUD
 
+-- Be able to use qb-target to start the job, disable if you do not have this resource
+useTarget = false
+
 -- Npc spawn location
 showNpc = true
 npcHeading = 205.9
