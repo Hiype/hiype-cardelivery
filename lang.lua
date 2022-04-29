@@ -1,48 +1,48 @@
--- For other languages, translate these strings
-blipName = "Car delivery"
-NoSpawnLocationInConfigFile = "No spawn locations in config file, quitting the job"
-KeepTheCar_JobIsCancelled = "Keep the car, job is canceled"
-VehicleHasBeenDestroyed_JobIsCancelled = "The vehicle was destroyed! Job has been canceled."
-JobQuit = "Car delivery job has been quit"
-JobInProgress = "Car delivery job is in progress"
-JobNotStarted = "Car delivery job is not active"
-JobStarted = "Car delivery job started"
-StartJob = "Press E to start a job"
-QuitJob = "Press E to quit the job"
-CarModelLoadingTimeout = "Car model loading has timed out, check if model names of your cars are correct"
-text_adminXPEditDescription = "(Admin) Edit car delivery rank"
-text_adminXPEditCommand = "cardeliveryxp"
-text_option = "Option"
-text_optionHelp = "Option type (add, reduce, set)"
-text_add = "add"
-text_reduce = "reduce"
-text_set = "set"
-text_number = "Number"
-text_level = "Level"
-text_levelUp = "Level up"
-text_levelLost = "Level lost"
-text_numberHelp = "Number of change"
-text_noSuchParameter = "No such parameter"
-text_notEveryArgumentWasEntered = "Not every argument was entered"
-text_getXpCommand = "deliveryxp"
-text_getXpDescription = "Shows your car delivery xp"
-text_added = "Added"
-text_xpToCarDeliveryRank = "xp to car delivery rank"
-text_cooldown = "Cooldown"
-text_secondsLeft = "seconds left"
+local Translations = {
+    error = {
+        job_quit = "Car delivery job has been quit",
+        job_in_progress = "Car delivery job is in progress",
+        job_not_active = "Car delivery job is not active",
+        car_model_timeout = "Model loading has timed out, check if model names of your cars are correct",
+        no_spawn_in_config = "No spawn locations in config file, quitting the job",
+        metadata_not_set_up = "Metadata not setup correctly",
+        vehicle_destroyed = "The vehicle was destroyed! Job has been canceled",
+        rank_lost = "Rank lost!"
+    },
+    info = {
+        start_job = "[E] Steal some cars",
+        end_job = "[E] End job",
+        end_job2 = "Quit job",
+        start_job2 = "Start job",
+        blip_name = "Vehicle delivery",
+        rank = "Rank %i",
+        rank_up = "Rank up!",
+        message_name = "Thug",
+        message_subject = "Car job",
+        message_text = "Go steal %s at %s",
+        robbery_in_progress = "%s robbery in progress",
+        keep_car = "[U] Keep vehicle",
+        keep_car_job_cancelled = "Keep the car, job is cancelled",
+        xp_subtracted = "%i XP subtracted from your rank"
+    },
+    commands = {
+        edit_add = "add",
+        edit_reduce = "reduce",
+        edit_set = "set",
+        edit_call = "cdedit",
+        edit_description = "(Restricted) Edit car delivery rank",
+        edit_option_name = "Option",
+        edit_option_help = "Option type (add, reduce, set)",
+        edit_number_name = "Number",
+        edit_number_help = "Value to change xp by",
+        status_call = "cdxp",
+        status_description = "Displays current car delivery rank",
+        no_such_parameter = "No such parameter",
+        not_enough_parameters = "Not enough parameters entered",
+    },
+}
 
-
-KeepTheCar = "In the next " .. choiceTimer .. " seconds, press U to keep the car and leave the job"
-SubtractedXP = tostring(rankPenalty) .. " XP subtracted from car delivery rank"
-
-function text_GoFindCar(spawns, level, vehicleChoice, spawnLocation)
-    return "Go find a ~g~" .. vehicles[level][vehicleChoice].name .. "~w~ somewhere around ~g~" .. spawns[spawnLocation].name .. "~w~!"
-end
-
-function text_GoFindParkedCar(spawns, level, vehicleChoice, spawnLocation)
-    return "Go find a parked ~g~" .. vehicles[level][vehicleChoice].name .. "~w~ at ~g~" .. spawns[spawnLocation].name .. "~w~!"
-end
-
-function text_vehicleStolen(vehicleChoice, level)
-    return vehicles[level][vehicleChoice].name .. " robbery in progress"
-end
+Lang = Locale:new({
+    phrases = Translations,
+    warnOnMissing = true
+})

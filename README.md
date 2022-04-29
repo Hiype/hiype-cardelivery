@@ -1,4 +1,4 @@
-# FiveM car delivery script
+# FiveM car delivery script (Rewrite)
 
 FiveM resource for servers with QbCore Framework.
 
@@ -11,20 +11,22 @@ Pretty simple so far, further updates coming soon.
 
 ## Features
 
-- Payout based on vehicle condition (Engine, Body, Level)
+- Payout based on vehicle condition (Engine, Body, Rank)
 - Very configurable
 - Cooldown between each taken job
-- Vehicles spawn either parked or driving around (Soon)
-- Very basic rank system, nothing changes yet
 - Possible cop car chase when the car is stolen
 - Rank system with better cars spawning the more xp you get
-- Chat commands for checking current level by /deliveryxp
-- Admin rank editing options with /cardeliveryxp (option) (number)
+- Chat commands for checking current level
+- Admin rank editing options
 - Level up and level down notifications
+- Vehicles deleted more seemlessly
+- **NEW** Now uses qb-target and polyzone
 
 ## Requirements
 
 - [QbCore framework](https://github.com/qbcore-framework)
+  - Polyzone
+  - qb-target
 
 ## Setup
 
@@ -49,7 +51,7 @@ To start the job, go to the location seen on the map below.
 
 ![Map](https://i.imgur.com/4xeQvGS.png)
 
-Once there, go next to the NPC and press E key on your keyboard to start the job. An objective will automatically show up.
+Once there, go next to the NPC and use third eye (left alt) to start the job. You will receive a message about the vehicle you need to steal.
 
 ![Job start location](https://i.imgur.com/b4coTdR.png)
 
@@ -59,6 +61,4 @@ Once you arrive at the destination, stop the car inside the objective blip on mi
 
 ## Support
 
-If you wish to support me in any way, you can do so through this link -> [Streamelements donos](https://streamelements.com/hiype/tip)<br>
-This link will redirect you to a Streamelements donation page which shows the donation on my youtube stream if I'm live<br>
-P.S Im rarely live and this was just easier to do
+If you wish to support me in any way, you can do so through this link -> [BuyMeACoffee](https://www.buymeacoffee.com/hiype)<br>

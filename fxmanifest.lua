@@ -1,20 +1,22 @@
 fx_version 'bodacious'
 game 'gta5'
 
-author 'Hiype'
+author 'https://github.com/Hiype'
 version '1.0.0'
 
-shared_scripts { 
-    'shared.lua',
-    'config.lua'
+shared_scripts {
+    '@qb-core/shared/locale.lua',
+    'config.lua',
+    'lang.lua',
 }
 
 client_scripts {
-    'lang.lua',
-    'client.lua',
+    'client/functions.lua',
+    '@PolyZone/client.lua',
+    '@PolyZone/BoxZone.lua',
+    'client/client.lua',
 }
 
-server_scripts {
-    'lang.lua',
-    'server.lua'
-} 
+server_script 'server/server.lua'
+
+lua54 'yes'
