@@ -1,4 +1,5 @@
 # FiveM car delivery script (Rewrite)
+**This rewrite release might be less stable, if you want the old version, change the branch**
 
 FiveM resource for servers with QbCore Framework.
 
