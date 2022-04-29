@@ -60,6 +60,10 @@ Follow the objective, use any lockpick to open the car and hotwire if necessary.
 Drive to the destination. Beware, if the car is destroyed, job will **fail**!<br>
 Once you arrive at the destination, stop the car inside the objective blip on mini map. Job will finish and you will get paid depending on distance driven and condition of the car.
 
+## Config and translation info
+
+[Head to the wiki page for detailed explanation on each variable](https://github.com/Hiype/hiype-cardelivery/wiki)
+
 ## Support
 
 If you wish to support me in any way, you can do so through this link -> [BuyMeACoffee](https://www.buymeacoffee.com/hiype)<br>
