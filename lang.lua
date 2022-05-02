@@ -7,7 +7,8 @@ local Translations = {
         no_spawn_in_config = "No spawn locations in config file, quitting the job",
         metadata_not_set_up = "Metadata not setup correctly",
         vehicle_destroyed = "The vehicle was destroyed! Job has been canceled",
-        rank_lost = "Rank lost!"
+        rank_lost = "Rank lost!",
+        not_enough_cops = "Not enough cops in the server!"
     },
     info = {
         start_job = "[E] Steal some cars",

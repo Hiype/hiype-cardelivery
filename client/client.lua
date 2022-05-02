@@ -5,10 +5,15 @@ local blip
 local rank
 local startPed
 local jobVehicle
+local CurrentCops
 
 local insideStartZone = false
 
 jobActive = false
+
+RegisterNetEvent('police:SetCopCount', function(amount)
+    CurrentCops = amount
+end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
     QBCore.Functions.TriggerCallback("hiype-cardelivery:server-metadata-available", function(result)
@@ -51,6 +56,7 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
                         if jobActive then
                             QBCore.Functions.Notify(Lang:t('error.job_in_progress'), "error")
                         else
+                            if CurrentCops >= Config.MinimumCopCount then
                             QBCore.Functions.TriggerCallback("hiype-cardelivery:server-get-cooldown-status", function(result)
                                 local cooldown = result
                                 if not cooldown then
@@ -63,6 +69,9 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
                                     end)
                                 end
                             end)
+                            else
+                                QBCore.Functions.Notify(Lang:t("error.not_enough_cops"), 'error')
+                            end
                         end
                     end
                 },
@@ -91,6 +100,7 @@ RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
 end)
 
 AddEventHandler('onResourceStart', function(resource)
+    TriggerServerEvent('police:server:UpdateCurrentCops')
     QBCore.Functions.TriggerCallback("hiype-cardelivery:server-get-rank", function(result)
         rank = result
     end)
@@ -128,18 +138,22 @@ AddEventHandler('onResourceStart', function(resource)
                         if jobActive then
                             QBCore.Functions.Notify(Lang:t('error.job_in_progress'), "error")
                         else
-                            QBCore.Functions.TriggerCallback("hiype-cardelivery:server-get-cooldown-status", function(result)
-                                local cooldown = result
-                                if not cooldown then
-                                    jobActive = true
-                                    StartJob(rank)
-                                else
-                                    QBCore.Functions.TriggerCallback("hiype-cardelivery:server-get-cooldown-timer", function(result)
-                                        local secondsLeft = result
-                                        QBCore.Functions.Notify(string.format("Cooldown: %i seconds left", secondsLeft), 'primary')
-                                    end)
-                                end
-                            end)
+                            if CurrentCops >= Config.MinimumCopCount then
+                                QBCore.Functions.TriggerCallback("hiype-cardelivery:server-get-cooldown-status", function(result)
+                                    local cooldown = result
+                                    if not cooldown then
+                                        jobActive = true
+                                        StartJob(rank)
+                                    else
+                                        QBCore.Functions.TriggerCallback("hiype-cardelivery:server-get-cooldown-timer", function(result)
+                                            local secondsLeft = result
+                                            QBCore.Functions.Notify(string.format("Cooldown: %i seconds left", secondsLeft), 'primary')
+                                        end)
+                                    end
+                                end)
+                            else
+                                QBCore.Functions.Notify(Lang:t("error.not_enough_cops"), 'error')
+                            end
                         end
                     end
                 },
@@ -194,12 +208,16 @@ CreateThread(function()
         if LocalPlayer.state['isLoggedIn'] then
             if insideStartZone then
                 if not jobActive then
-                    if not Config.UseTarget then exports["qb-core"]:DrawText(Lang:t('info.start_job'), 'left') end
-                    if IsControlPressed(0, 38) then -- Key E
-                        jobActive = true
-                        if not Config.UseTarget then exports["qb-core"]:HideText() end
-                        StartJob(rank)
-                        Wait(500)
+                    if CurrentCops >= Config.MinimumCopCount then
+                        if not Config.UseTarget then exports["qb-core"]:DrawText(Lang:t('info.start_job'), 'left') end
+                        if IsControlPressed(0, 38) then -- Key E
+                            jobActive = true
+                            if not Config.UseTarget then exports["qb-core"]:HideText() end
+                            StartJob(rank)
+                            Wait(500)
+                        end
+                    else
+                        QBCore.Functions.Notify(Lang:t("error.not_enough_cops"), 'error')
                     end
                 else
                     if not Config.UseTarget then exports["qb-core"]:DrawText(Lang:t('info.end_job'), 'left') end
