@@ -101,7 +101,7 @@ function updateRank(src)
     local Player = QBCore.Functions.GetPlayer(src)
 	
 	local timeout = 3000
-	while not Player do
+	while not Player and timeout > 0 do
 		Wait(200)
 		timeout = timeout - 200
 		Player = QBCore.Functions.GetPlayer(src)
