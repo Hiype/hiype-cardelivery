@@ -23,6 +23,7 @@ RegisterNetEvent("hiype-cardelivery:server-update-metadata", function(value)
 end)
 
 RegisterNetEvent("hiype-cardelivery:server-return-rank", function()
+	local src = source
 	TriggerClientEvent("hiype-cardelivery:client-receive-rank", src, updateRank(src))
 end)
 
@@ -98,6 +99,16 @@ function updateRank(src)
     local rank = 1
     local rankGoals = Config.XpGoals
     local Player = QBCore.Functions.GetPlayer(src)
+	
+	local timeout = 3000
+	while not Player do
+		Wait(200)
+		timeout = timeout - 200
+		Player = QBCore.Functions.GetPlayer(src)
+	end
+
+	if not Player then print("Something went wrong :(") end
+
 	local metadata = Player.PlayerData.metadata[metaDataName]
 
 	if metadata ~= nil then
