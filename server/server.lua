@@ -100,14 +100,14 @@ function updateRank(src)
     local rankGoals = Config.XpGoals
     local Player = QBCore.Functions.GetPlayer(src)
 	
-	local timeout = 3000
+	local timeout = 5000
 	while not Player and timeout > 0 do
 		Wait(200)
 		timeout = timeout - 200
 		Player = QBCore.Functions.GetPlayer(src)
 	end
 
-	if not Player then print("Something went wrong :(") end
+	if not Player then print("Getting player data timed out") end
 
 	local metadata = Player.PlayerData.metadata[metaDataName]
 
