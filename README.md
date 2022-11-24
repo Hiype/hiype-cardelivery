@@ -4,7 +4,6 @@
 FiveM resource for servers with QbCore Framework.
 
 Start a mission for a car delivery, steal the car, drive it to the destination, profit.<br>
-Pretty simple so far, further updates coming soon.
 
 📽️⬇️ Check the video below! 📽️⬇️
 

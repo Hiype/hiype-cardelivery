@@ -1,4 +1,7 @@
 -- Detailed description of each option at repository wiki - https://github.com/Hiype/hiype-cardelivery/wiki
+
+-- Crash while working, doesnt kick you from the job
+-- Prohibit cops from starting this job
 Config = {}
 
 -- Base configurations
@@ -8,6 +11,7 @@ Config.AddBlip = true
 Config.UseTarget = true
 Config.PayoutMethod = "cash"
 Config.PayoutBasedOnDistance = true
+Config.ProhibitCopsFromStartingJob = true
 
 -- XP configurations
 Config.JobXP = 200
@@ -39,7 +43,7 @@ Config.SpawnLocalPolice = true
 Config.SpawnLocalPoliceChance = 1
 Config.SendRealPoliceNotification = true
 Config.SendRealPoliceNotificationChance = 1
-Config.MinimumCopCount = 3
+Config.MinimumCopCount = 0
 
 
 -- Command configurations
