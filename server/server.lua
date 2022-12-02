@@ -1,6 +1,27 @@
 local QBCore = exports["qb-core"]:GetCoreObject()
 local metaDataName = "cardeliveryxp"
 local cooldownTimer = 0
+local startPed
+local netStartPed
+
+AddEventHandler('onResourceStart', function(resource)
+    if resource ~= GetCurrentResourceName() then
+        return
+    end
+
+	local startLocation = Config.StartLocation
+	startPed = CreatePed(4, Config.StartPedModel, startLocation.x, startLocation.y, startLocation.z - 1, startLocation.w, true, true)
+	netStartPed = NetworkGetNetworkIdFromEntity(startPed)
+	FreezeEntityPosition(startPed, true)
+	TriggerClientEvent('hiype-cardelivery:client-update-start', -1, startPed)
+end)
+
+AddEventHandler('onResourceStop', function(resourceName)
+	if (GetCurrentResourceName() ~= resourceName) then
+		return
+	end
+	DeleteEntity(startPed)
+end)
 
 RegisterNetEvent("hiype-cardelivery:server-start-cooldown", function()
     cooldownTimer = Config.CooldownTime * 1000
@@ -53,6 +74,14 @@ QBCore.Functions.CreateCallback("hiype-cardelivery:server-metadata-available", f
 	else
 		cb(false)
 	end
+end)
+
+QBCore.Functions.CreateCallback('hiype-cardelivery:server-get-start-ped', function(source, cb)
+	cb(startPed)
+end)
+
+QBCore.Functions.CreateCallback('hiype-cardelivery:server-get-net-start-ped', function(source, cb)
+	cb(netStartPed)
 end)
 
 QBCore.Commands.Add(Lang:t('commands.edit_call'), Lang:t('commands.edit_description'), {

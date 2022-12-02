@@ -4,6 +4,7 @@ local startBoxZone
 local blip
 local rank
 local startPed
+local netStartPed
 local jobVehicle
 local CurrentCops
 
@@ -29,17 +30,13 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
     local startLocation = Config.StartLocation
     LocalPlayer.state:set('isLoggedIn', true, false)
 
-    RequestModel(Config.StartPedModel)
-
-    while not HasModelLoaded(Config.StartPedModel) do
-        Wait(10)
-    end
-
-    startPed = CreatePed(4, Config.StartPedModel, startLocation.x, startLocation.y, startLocation.z - 1, startLocation.w, false, true)
-    FreezeEntityPosition(startPed, true)
-    SetEntityInvincible(startPed, true)
-    SetBlockingOfNonTemporaryEvents(startPed, true)
-    TaskStartScenarioInPlace(startPed, "WORLD_HUMAN_DRUG_DEALER", 0, true)
+    QBCore.Functions.TriggerCallback('hiype-cardelivery:server-get-net-start-ped', function(netStartPed_in)
+        netStartPed = netStartPed_in
+        startPed = NetToEnt(netStartPed)
+        SetEntityInvincible(startPed, true)
+        SetBlockingOfNonTemporaryEvents(startPed, true)
+        TaskStartScenarioInPlace(startPed, "WORLD_HUMAN_DRUG_DEALER", 0, true)
+    end)
 
     while not rank do
         Wait(500)
@@ -97,31 +94,45 @@ end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
     LocalPlayer.state:set('isLoggedIn', false, false)
+    jobActive = false
+end)
+
+AddEventHandler('onResourceStop', function(resourceName)
+	if (GetCurrentResourceName() ~= resourceName) then
+		return
+	end
+	DeleteVehicle(jobVehicle)
+end)
+
+RegisterNetEvent('hiype-cardelivery:client-update-start', function(netStartPed_in)
+    netStartPed = netStartPed_in
+    startPed = NetToEnt(netStartPed)
+    SetEntityInvincible(startPed, true)
+    SetBlockingOfNonTemporaryEvents(startPed, true)
+    TaskStartScenarioInPlace(startPed, "WORLD_HUMAN_DRUG_DEALER", 0, true)
 end)
 
 AddEventHandler('onResourceStart', function(resource)
+    if resource == GetCurrentResourceName() then
+        Wait(100)
+        LocalPlayer.state:set('isLoggedIn', true, false)
+    else
+        return
+    end
     TriggerServerEvent('police:server:UpdateCurrentCops')
     QBCore.Functions.TriggerCallback("hiype-cardelivery:server-get-rank", function(result)
         rank = result
     end)
     
     local startLocation = Config.StartLocation
-    if resource == GetCurrentResourceName() then
-        Wait(100)
-        LocalPlayer.state:set('isLoggedIn', true, false)
-    end
 
-    RequestModel(Config.StartPedModel)
-
-    while not HasModelLoaded(Config.StartPedModel) do
-        Wait(10)
-    end
-
-    startPed = CreatePed(4, Config.StartPedModel, startLocation.x, startLocation.y, startLocation.z - 1, startLocation.w, false, true)
-    FreezeEntityPosition(startPed, true)
-    SetEntityInvincible(startPed, true)
-    SetBlockingOfNonTemporaryEvents(startPed, true)
-    TaskStartScenarioInPlace(startPed, "WORLD_HUMAN_DRUG_DEALER", 0, true)
+    QBCore.Functions.TriggerCallback('hiype-cardelivery:server-get-net-start-ped', function(netStartPed_in)
+        netStartPed = netStartPed_in
+        startPed = NetToEnt(netStartPed)
+        SetEntityInvincible(startPed, true)
+        SetBlockingOfNonTemporaryEvents(startPed, true)
+        TaskStartScenarioInPlace(startPed, "WORLD_HUMAN_DRUG_DEALER", 0, true)
+    end)
 
     while not rank do
         Wait(500)
@@ -142,15 +153,20 @@ AddEventHandler('onResourceStart', function(resource)
                                 QBCore.Functions.TriggerCallback("hiype-cardelivery:server-get-cooldown-status", function(result)
                                     local cooldown = result
                                     if not cooldown then
-                                        jobActive = true
-                                        StartJob(rank)
+                                        if Config.ProhibitCopsFromStartingJob and not IsPlayerCop() or not Config.ProhibitCopsFromStartingJob then
+                                            jobActive = true
+                                            StartJob(rank)
+                                        else
+                                            QBCore.Functions.Notify(Lang:t('error.cops_cant_start_job'), 'error')
+                                        end
                                     else
+                                        if not IsPlayerCop() then
                                         QBCore.Functions.TriggerCallback("hiype-cardelivery:server-get-cooldown-timer", function(result)
                                             local secondsLeft = result
-                                            QBCore.Functions.Notify(string.format("Cooldown: %i seconds left", secondsLeft), 'primary')
+                                            QBCore.Functions.Notify(string.format(Lang:t('info.cooldown_left'), secondsLeft), 'primary')
                                         end)
                                     end
-                                end)
+                                end end)
                             else
                                 QBCore.Functions.Notify(Lang:t("error.not_enough_cops"), 'error')
                             end

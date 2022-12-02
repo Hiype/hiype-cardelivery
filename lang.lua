@@ -8,7 +8,8 @@ local Translations = {
         metadata_not_set_up = "Metadata not setup correctly",
         vehicle_destroyed = "The vehicle was destroyed! Job has been canceled",
         rank_lost = "Rank lost!",
-        not_enough_cops = "Not enough cops in the server!"
+        not_enough_cops = "Not enough cops in the server!",
+        cops_cant_start_job = "Cops can't start the job!"
     },
     info = {
         start_job = "[E] Steal some cars",
@@ -24,7 +25,8 @@ local Translations = {
         robbery_in_progress = "%s robbery in progress",
         keep_car = "[U] Keep vehicle",
         keep_car_job_cancelled = "Keep the car, job is cancelled",
-        xp_subtracted = "%i XP subtracted from your rank"
+        xp_subtracted = "%i XP subtracted from your rank",
+        cooldown_left = "Cooldown: %i seconds left"
     },
     commands = {
         edit_add = "add",

@@ -1,11 +1,9 @@
 -- Detailed description of each option at repository wiki - https://github.com/Hiype/hiype-cardelivery/wiki
 
--- Crash while working, doesnt kick you from the job
--- Prohibit cops from starting this job
 Config = {}
 
 -- Base configurations
-Config.StartLocation = vector4(-78.10, -1392.16, 29.32, 178.21)
+Config.StartLocation = vector4(-78.10, -1392.16, 30.32, 178.21)
 Config.StartPedModel = "g_m_y_lost_01"
 Config.AddBlip = true
 Config.UseTarget = true
