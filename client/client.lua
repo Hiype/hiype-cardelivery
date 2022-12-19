@@ -43,52 +43,7 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
     end
 
     if Config.UseTarget then
-        exports['qb-target']:AddTargetEntity(startPed, {
-            options = {
-                {
-                    type = "client",
-                    icon = "fa-solid fa-car",
-                    label = Lang:t('info.start_job2'),
-                    action = function(entity)
-                        if jobActive then
-                            QBCore.Functions.Notify(Lang:t('error.job_in_progress'), "error")
-                        else
-                            if CurrentCops >= Config.MinimumCopCount then
-                            QBCore.Functions.TriggerCallback("hiype-cardelivery:server-get-cooldown-status", function(result)
-                                local cooldown = result
-                                if not cooldown then
-                                    jobActive = true
-                                    StartJob(rank)
-                                else
-                                    QBCore.Functions.TriggerCallback("hiype-cardelivery:server-get-cooldown-timer", function(result)
-                                        local secondsLeft = result
-                                        QBCore.Functions.Notify(string.format("Cooldown: %i seconds left", secondsLeft), 'primary')
-                                    end)
-                                end
-                            end)
-                            else
-                                QBCore.Functions.Notify(Lang:t("error.not_enough_cops"), 'error')
-                            end
-                        end
-                    end
-                },
-                {
-                    type = "client",
-                    icon = "fa-solid fa-x",
-                    label = Lang:t('info.end_job2'),
-                    action = function(entity)
-                        if jobActive then
-                            jobActive = false
-                            QBCore.Functions.Notify(Lang:t('error.job_quit'), "error")
-                            QBCore.Functions.DeleteVehicle(jobVehicle)
-                        else 
-                            QBCore.Functions.Notify(Lang:t('error.job_not_active'), "error")
-                        end
-                    end
-                },
-            },
-            distance = 3.0
-        })
+        AddTargetToEntity()
     end
 end)
 
@@ -139,57 +94,7 @@ AddEventHandler('onResourceStart', function(resource)
     end
 
     if Config.UseTarget then
-        exports['qb-target']:AddTargetEntity(startPed, {
-            options = {
-                {
-                    type = "client",
-                    icon = "fa-solid fa-car",
-                    label = Lang:t('info.start_job2'),
-                    action = function(entity)
-                        if jobActive then
-                            QBCore.Functions.Notify(Lang:t('error.job_in_progress'), "error")
-                        else
-                            if CurrentCops >= Config.MinimumCopCount then
-                                QBCore.Functions.TriggerCallback("hiype-cardelivery:server-get-cooldown-status", function(result)
-                                    local cooldown = result
-                                    if not cooldown then
-                                        if Config.ProhibitCopsFromStartingJob and not IsPlayerCop() or not Config.ProhibitCopsFromStartingJob then
-                                            jobActive = true
-                                            StartJob(rank)
-                                        else
-                                            QBCore.Functions.Notify(Lang:t('error.cops_cant_start_job'), 'error')
-                                        end
-                                    else
-                                        if not IsPlayerCop() then
-                                        QBCore.Functions.TriggerCallback("hiype-cardelivery:server-get-cooldown-timer", function(result)
-                                            local secondsLeft = result
-                                            QBCore.Functions.Notify(string.format(Lang:t('info.cooldown_left'), secondsLeft), 'primary')
-                                        end)
-                                    end
-                                end end)
-                            else
-                                QBCore.Functions.Notify(Lang:t("error.not_enough_cops"), 'error')
-                            end
-                        end
-                    end
-                },
-                {
-                    type = "client",
-                    icon = "fa-solid fa-x",
-                    label = Lang:t('info.end_job2'),
-                    action = function(entity)
-                        if jobActive then
-                            jobActive = false
-                            QBCore.Functions.Notify(Lang:t('error.job_quit'), "error")
-                            QBCore.Functions.DeleteVehicle(jobVehicle)
-                        else 
-                            QBCore.Functions.Notify(Lang:t('error.job_not_active'), "error")
-                        end
-                    end
-                },
-            },
-            distance = 3.0
-        })
+        AddTargetToEntity()
     end
 end)
 
@@ -218,6 +123,15 @@ CreateThread(function()
             insideStartZone = isPointInside
         end, 100)
     end
+
+    areaBoxZone = SetBoxZone(Config.StartLocation, 100.0, 100.0, "area_box_zone")
+    areaBoxZone:onPointInOut(PolyZone.getPlayerPosition, function(isPointInside, point)
+        startPed = NetToEnt(netStartPed)
+        SetEntityInvincible(startPed, true)
+        SetBlockingOfNonTemporaryEvents(startPed, true)
+        TaskStartScenarioInPlace(startPed, "WORLD_HUMAN_DRUG_DEALER", 0, true)
+        AddTargetToEntity()
+    end, 1000)
     
     while true do
         if not insideStartZone then Wait(200) else Wait(10) end
@@ -252,4 +166,59 @@ end)
 
 function UpdateRank()
     TriggerServerEvent("hiype-cardelivery:server-return-rank")
+end
+
+function AddTargetToEntity()
+    startPed = NetToEnt(netStartPed)
+    exports['qb-target']:AddTargetEntity(startPed, {
+        options = {
+            {
+                type = "client",
+                icon = "fa-solid fa-car",
+                label = Lang:t('info.start_job2'),
+                action = function(entity)
+                    if jobActive then
+                        QBCore.Functions.Notify(Lang:t('error.job_in_progress'), "error")
+                    else
+                        if CurrentCops >= Config.MinimumCopCount then
+                            QBCore.Functions.TriggerCallback("hiype-cardelivery:server-get-cooldown-status", function(result)
+                                local cooldown = result
+                                if not cooldown then
+                                    if Config.ProhibitCopsFromStartingJob and not IsPlayerCop() or not Config.ProhibitCopsFromStartingJob then
+                                        jobActive = true
+                                        StartJob(rank)
+                                    else
+                                        QBCore.Functions.Notify(Lang:t('error.cops_cant_start_job'), 'error')
+                                    end
+                                else
+                                    if not IsPlayerCop() then
+                                    QBCore.Functions.TriggerCallback("hiype-cardelivery:server-get-cooldown-timer", function(result)
+                                        local secondsLeft = result
+                                        QBCore.Functions.Notify(string.format(Lang:t('info.cooldown_left'), secondsLeft), 'primary')
+                                    end)
+                                end
+                            end end)
+                        else
+                            QBCore.Functions.Notify(Lang:t("error.not_enough_cops"), 'error')
+                        end
+                    end
+                end
+            },
+            {
+                type = "client",
+                icon = "fa-solid fa-x",
+                label = Lang:t('info.end_job2'),
+                action = function(entity)
+                    if jobActive then
+                        jobActive = false
+                        QBCore.Functions.Notify(Lang:t('error.job_quit'), "error")
+                        QBCore.Functions.DeleteVehicle(jobVehicle)
+                    else 
+                        QBCore.Functions.Notify(Lang:t('error.job_not_active'), "error")
+                    end
+                end
+            },
+        },
+        distance = 3.0
+    })
 end
