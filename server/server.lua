@@ -4,6 +4,35 @@ local cooldownTimer = 0
 local startPed
 local netStartPed
 
+function updateRank(src)
+    local rank = 1
+    local rankGoals = Config.XpGoals
+    local Player = QBCore.Functions.GetPlayer(src)
+	
+	local timeout = 5000
+	while not Player and timeout > 0 do
+		Wait(200)
+		timeout = timeout - 200
+		Player = QBCore.Functions.GetPlayer(src)
+	end
+
+	if not Player then print("Getting player data timed out") end
+
+	local metadata = Player.PlayerData.metadata[metaDataName]
+
+	if metadata ~= nil then
+		for i=1, #rankGoals, 1 do
+			if metadata >= rankGoals[i] then
+				rank = i + 1
+			end
+		end
+        return rank
+    else
+        TriggerClientEvent("QBCore:Notify", src, "Metadata was nil", "error")
+        return nil
+    end
+end
+
 AddEventHandler('onResourceStart', function(resource)
     if resource ~= GetCurrentResourceName() then
         return
@@ -123,35 +152,6 @@ QBCore.Commands.Add(Lang:t('commands.status_call'), Lang:t('commands.status_desc
     TriggerClientEvent("QBCore:Notify", src, string.format(Lang:t('info.rank') .. " (%i)", rank, metadata), "primary")
 	TriggerClientEvent("hiype-cardelivery:client-receive-rank", src, updateRank(src))
 end)
-
-function updateRank(src)
-    local rank = 1
-    local rankGoals = Config.XpGoals
-    local Player = QBCore.Functions.GetPlayer(src)
-	
-	local timeout = 5000
-	while not Player and timeout > 0 do
-		Wait(200)
-		timeout = timeout - 200
-		Player = QBCore.Functions.GetPlayer(src)
-	end
-
-	if not Player then print("Getting player data timed out") end
-
-	local metadata = Player.PlayerData.metadata[metaDataName]
-
-	if metadata ~= nil then
-		for i=1, #rankGoals, 1 do
-			if metadata >= rankGoals[i] then
-				rank = i + 1
-			end
-		end
-        return rank
-    else
-        TriggerClientEvent("QBCore:Notify", src, "Metadata was nil", "error")
-        return nil
-    end
-end
 
 function setMetaData(src, newValue)
     local Player = QBCore.Functions.GetPlayer(src)
