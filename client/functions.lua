@@ -235,11 +235,9 @@ function SeemlessDeleteVehicle(vehicle)
             timeout = timeout - 500
             local player_coords = GetEntityCoords(PlayerPedId())
             local vehicle_coords = GetEntityCoords(vehicle)
-            if Vdist2(player_coords, vehicle_coords) > 2000 then
-                QBCore.Functions.DeleteVehicle(vehicle)
-                break
-            end
+            if Vdist2(player_coords, vehicle_coords) > 2000 then break end
         end
+        QBCore.Functions.DeleteVehicle(vehicle)
     end)
 end
 
