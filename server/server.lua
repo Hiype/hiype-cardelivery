@@ -4,7 +4,7 @@ local cooldownTimer = 0
 local startPed
 local netStartPed
 
-function updateRank(src)
+local function updateRank(src)
     local rank = 1
     local rankGoals = Config.XpGoals
     local Player = QBCore.Functions.GetPlayer(src)
@@ -105,6 +105,17 @@ QBCore.Functions.CreateCallback("hiype-cardelivery:server-metadata-available", f
 	end
 end)
 
+QBCore.Functions.CreateCallback('hiype-cardelivery:server:fetch-cop-count', function(source, cb, args)
+	local counter = 0
+	local Players = QBCore.Functions.GetPlayers()
+	for i,v in ipairs(Players) do
+		local Player = QBCore.Functions.GetPlayer(v)
+		if Player.PlayerData.job.name == 'police' then counter = counter + 1 end
+	end
+	cb(counter)
+end)
+
+
 QBCore.Functions.CreateCallback('hiype-cardelivery:server-get-start-ped', function(source, cb)
 	cb(startPed)
 end)
@@ -153,7 +164,7 @@ QBCore.Commands.Add(Lang:t('commands.status_call'), Lang:t('commands.status_desc
 	TriggerClientEvent("hiype-cardelivery:client-receive-rank", src, updateRank(src))
 end)
 
-function setMetaData(src, newValue)
+local function setMetaData(src, newValue)
     local Player = QBCore.Functions.GetPlayer(src)
 
     if Player then
@@ -162,7 +173,7 @@ function setMetaData(src, newValue)
 	end
 end
 
-function changeMetaData(src, change)
+local function changeMetaData(src, change)
     local Player = QBCore.Functions.GetPlayer(src)
 	local metadata = Player.PlayerData.metadata[metaDataName]
 

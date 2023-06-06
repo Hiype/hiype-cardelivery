@@ -96,6 +96,7 @@ function StartJob(rank)
     SetBlipRoute(vehBlip, true)
     SetBlipColour(vehBlip, 5)
     SetBlipRouteColour(vehBlip, 5)
+
     while jobActive and not IsPedInVehicle(pedid, vehicle, true) and GetVehicleEngineHealth(vehicle) > 50 and IsVehicleDriveable(vehicle, false) do
         Wait(50)
     end
@@ -124,6 +125,7 @@ function StartJob(rank)
             TriggerServerEvent('police:server:policeAlert', string.format(Lang:t("info.robbery_in_progress"), Config.Vehicles[rank][vehicleChoice].name))
         end
     end
+
     if Config.SpawnLocalPolice then
         if math.random(1, Config.SpawnLocalPoliceChance) == 1 then
             RequestModel(Config.VehicleModel)
@@ -145,6 +147,7 @@ function StartJob(rank)
             CopChase(cop, copVehicle, model)
         end
     end
+
     if jobActive then exports["qb-core"]:DrawText(Lang:t('info.keep_car'), 'left') end
 
     local destination_coords = vector3(Config.Destinations[destinationLocation].x, Config.Destinations[destinationLocation].y, Config.Destinations[destinationLocation].z)

@@ -41,7 +41,7 @@ Config.SpawnLocalPolice = true
 Config.SpawnLocalPoliceChance = 1
 Config.SendRealPoliceNotification = true
 Config.SendRealPoliceNotificationChance = 1
-Config.MinimumCopCount = 0
+Config.MinimumCopCount = 1
 
 
 -- Command configurations

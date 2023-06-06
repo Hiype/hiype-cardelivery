@@ -1,5 +1,10 @@
 # FiveM car delivery script (Rewrite)
-**This rewrite release might be less stable, if you want the old version, change the branch**
+
+<b>Note:</b> I made a rewrite on April 29, 2022, but since then my Lua coding skills have been increased a lot
+and looking at this code...it really needs another rewrite because some parts of the code are still
+quite badly written and some parts are not logical almost at all. If anyone wishes to make a rewrite please
+do so! But i believe my working days on this script are over. I will be moving on to new scripts, see you there :)
+
 
 FiveM resource for servers with QbCore Framework.
 
@@ -20,7 +25,7 @@ Start a mission for a car delivery, steal the car, drive it to the destination, 
 - Admin rank editing options
 - Level up and level down notifications
 - Vehicles deleted more seemlessly
-- **NEW** Now uses qb-target and polyzone
+- Uses qb-target and polyzone
 
 ## Requirements
 
